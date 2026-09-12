@@ -7,8 +7,7 @@ const DEVELOPMENT_ROLE_KEY = 'campuslab-development-role';
 
 /**
  * Lee el claim "roles" del ID token (App roles asignados en Azure AD
- * al App Registration "CampusLab"). Spring Security valida lo mismo
- * del lado del BFF; esto es solo para mostrar/ocultar UI.
+ * al App Registration "CampusLab". Esto solo controla las vistas del frontend.
  */
 @Injectable({ providedIn: 'root' })
 export class RoleService {
