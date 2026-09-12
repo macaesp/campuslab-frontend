@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root {
+  --text: #172238;
+  --text-muted: #71809a;
+  --border: #e5eaf1;
+  --surface: #ffffff;
+  --surface-alt: #f6f8fb;
+  --accent: #3458db;
+  --accent-dark: #233cc0;
+}
+
+body, button, input, select, textarea { font-family: 'DM Sans', Arial, sans-serif; }
+h1, h2, h3, .heading, .brand { font-family: 'Space Grotesk', 'DM Sans', Arial, sans-serif; }

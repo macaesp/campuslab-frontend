@@ -1,0 +1,42 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h2>Auditoría de Eventos</h2>
+      <p class="subtitle">Trazabilidad histórica en tiempo real (Solo lectura)[cite: 1]</p>
+    </div>
+  </div>
+
+  <!-- Barra de Filtros y Búsqueda -->
+  <div class="filter-card">
+    <input type="text" placeholder="Buscar por ID de reserva o usuario..." [(ngModel)]="searchTerm" class="search-input" />
+
+    <select [(ngModel)]="selectedFilter" class="filter-select">
+      <option value="TODOS">Todos los eventos</option>
+      <option value="CREACION_RESERVA">Creación de reserva</option>
+      <option value="APROBACION">Aprobaciones</option>
+      <option value="CAMBIO_ESTADO">Cambios de estado</option>
+      <option value="MODIFICACION_STOCK">Modificación de stock</option>
+    </select>
+  </div>
+
+  <!-- Timeline de Eventos -->
+  <div class="timeline">
+    <div class="timeline-item" *ngFor="let evt of filteredEvents">
+      <div class="timeline-badge"></div>
+      <div class="timeline-content">
+        <div class="timeline-header">
+          <span class="booking-tag">{{ evt.bookingId }}</span>
+          <span class="timestamp">{{ evt.timestamp }}</span>
+        </div>
+        
+        <h4 class="action-title">{{ evt.action }}</h4>
+        <p class="details">{{ evt.details }}</p>
+        
+        <div class="timeline-footer">
+          <span>👤 <strong>{{ evt.actor }}</strong> ({{ evt.role }})</span>
+          <span class="ip-address">IP: {{ evt.ipAddress }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

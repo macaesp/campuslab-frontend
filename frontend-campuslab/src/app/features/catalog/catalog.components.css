@@ -1,0 +1,34 @@
+.page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+.subtitle { color: #6c757d; font-size: 0.9rem; margin-top: 0.2rem; }
+.btn-primary { background: #003366; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 4px; font-weight: bold; cursor: pointer; }
+
+/* Filtros */
+.filter-bar { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; overflow-x: auto; padding-bottom: 0.5rem; }
+.filter-bar button { border: 1px solid #ced4da; background: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; cursor: pointer; white-space: nowrap; }
+.filter-bar button.active { background: #003366; color: white; border-color: #003366; }
+
+/* Grid responsivo: Autofit según el ancho de pantalla */
+.catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+
+/* Tarjetas */
+.resource-card { background: white; border-radius: 8px; padding: 1.25rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #e9ecef; display: flex; flex-direction: column; justify-content: space-between; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+.category-tag { font-size: 0.7rem; font-weight: bold; padding: 0.2rem 0.5rem; border-radius: 4px; text-transform: uppercase; }
+.category-tag[data-cat="LABORATORIO"] { background: #e3f2fd; color: #0d47a1; }
+.category-tag[data-cat="EQUIPO"] { background: #e8f5e9; color: #1b5e20; }
+.category-tag[data-cat="INSUMO"] { background: #fff3e0; color: #e65100; }
+.code-tag { font-size: 0.8rem; color: #adb5bd; font-family: monospace; }
+
+.resource-title { font-size: 1.1rem; color: #212529; margin: 0 0 0.4rem 0; }
+.location-info { font-size: 0.85rem; color: #6c757d; margin: 0 0 1rem 0; }
+
+/* Barra de Stock */
+.stock-box { background: #f8f9fa; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; }
+.stock-info { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.4rem; color: #495057; }
+.progress-bar { height: 6px; background: #dee2e6; border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: #28a745; transition: width 0.3s ease; }
+
+/* Botones de acción */
+.card-actions { display: flex; gap: 0.5rem; }
+.btn-stock { flex: 1; border: 1px solid #ced4da; background: #ffffff; padding: 0.4rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer; }
+.btn-edit { border: none; background: #e9ecef; color: #495057; padding: 0.4rem 0.8rem; border-radius: 4px; font-size: 0.8rem; cursor: pointer; }

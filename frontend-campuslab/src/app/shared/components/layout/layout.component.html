@@ -1,0 +1,30 @@
+<div class="app-shell">
+<header class="topbar">
+    <div class="topbar-left">
+        <button class="mobile-toggle" (click)="toggleMenu()" aria-label="Abrir menú">☰</button>
+        <a class="brand" routerLink="/dashboard">CampusLab</a>
+    </div>
+    <div class="user-badge">
+        <span class="user-name">{{ userName }}</span>
+        <button class="btn-logout" (click)="logout()">Salir</button>
+    </div>
+</header>
+
+<div class="main-container">
+    <aside class="sidebar" [class.open]="isMenuOpen">
+    <nav class="nav-menu">
+        <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMenu()">Dashboard</a>
+        <a routerLink="/bookings" routerLinkActive="active" (click)="closeMenu()">Reservas</a>
+        <a *ngIf="hasRole(['Admin', 'OperadorDominio'])" routerLink="/catalog" routerLinkActive="active" (click)="closeMenu()">Catálogo</a>
+        <a *ngIf="hasRole(['Admin'])" routerLink="/reports" routerLinkActive="active" (click)="closeMenu()">Reportes</a>
+        <a *ngIf="hasRole(['Admin', 'Auditor'])" routerLink="/audit" routerLinkActive="active" (click)="closeMenu()">Auditoría</a>
+    </nav>
+    </aside>
+
+    <div class="overlay" *ngIf="isMenuOpen" (click)="closeMenu()"></div>
+
+    <main class="content">
+        <router-outlet></router-outlet>
+    </main>
+    </div>
+</div>

@@ -1,0 +1,86 @@
+<h1 class="heading" style="font-size:22px; margin-bottom:20px;">Reservas</h1>
+
+<div class="panel">
+  <div class="panel-head-row">
+    <select [(ngModel)]="statusFilter" (ngModelChange)="refresh()" class="select-input">
+      <option value="todas">Todos los estados</option>
+      <option value="SOLICITADA">Solicitada</option>
+      <option value="APROBADA">Aprobada</option>
+      <option value="EN_PREPARACION">En preparación</option>
+      <option value="EN_USO">En uso</option>
+      <option value="DEVUELTA">Devuelta</option>
+      <option value="CANCELADA">Cancelada</option>
+    </select>
+    <button class="btn-primary" (click)="showForm = true">+ Nueva reserva</button>
+  </div>
+
+  <table class="table" *ngIf="!loading; else loadingTpl">
+    <thead>
+      <tr>
+        <th>ID</th><th>Laboratorio</th><th>Recurso</th><th>Solicitante</th>
+        <th>Fecha</th><th>Horario</th><th>Estado</th><th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let b of bookings">
+        <td class="mono">{{ b.id }}</td>
+        <td>{{ b.labNombre }}</td>
+        <td class="mono">{{ b.resourceNombre || '—' }}</td>
+        <td>{{ b.solicitanteNombre }}</td>
+        <td class="mono">{{ b.fecha }}</td>
+        <td class="mono">{{ b.horaInicio }}–{{ b.horaFin }}</td>
+        <td><cl-status-badge [status]="b.status"></cl-status-badge></td>
+        <td>
+          <button
+            *ngFor="let next of nextStatuses(b.status)"
+            class="link-btn"
+            [class.danger]="next === 'CANCELADA'"
+            (click)="changeStatus(b, next)"
+          >
+            {{ next === 'CANCELADA' ? 'Cancelar' : ('Marcar ' + next.toLowerCase().replace('_',' ')) }}
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <ng-template #loadingTpl><p class="text-muted">Cargando reservas (GET /api/bookings)…</p></ng-template>
+  <p *ngIf="!loading && bookings.length === 0" class="text-muted">No hay reservas con ese filtro.</p>
+</div>
+
+<div class="panel-overlay" *ngIf="showForm">
+  <div class="panel-modal panel">
+    <h3>Nueva reserva</h3>
+    <form [formGroup]="form" (ngSubmit)="submitBooking()">
+      <label class="field-label">Laboratorio</label>
+      <select class="field-input" formControlName="labId">
+        <option value="" disabled>Selecciona un laboratorio…</option>
+        <option *ngFor="let lab of labs" [value]="lab.id">{{ lab.nombre }} — {{ lab.sede }}</option>
+      </select>
+
+      <label class="field-label">Recurso / equipo (opcional)</label>
+      <select class="field-input" formControlName="resourceId">
+        <option value="">Sin equipo asociado</option>
+        <option *ngFor="let eq of equipos" [value]="eq.id">{{ eq.nombre }}</option>
+      </select>
+
+      <label class="field-label">Fecha</label>
+      <input class="field-input" type="date" formControlName="fecha" />
+
+      <div class="field-row">
+        <div>
+          <label class="field-label">Hora inicio</label>
+          <input class="field-input" type="time" formControlName="horaInicio" />
+        </div>
+        <div>
+          <label class="field-label">Hora fin</label>
+          <input class="field-input" type="time" formControlName="horaFin" />
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="link-btn" (click)="showForm = false">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid">Solicitar reserva</button>
+      </div>
+    </form>
+  </div>
+</div>

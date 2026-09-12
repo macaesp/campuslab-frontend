@@ -1,0 +1,35 @@
+<div class="grid-card">
+  <div class="grid-card-head">
+    <h3>Ocupación de hoy</h3>
+    <div class="legend">
+      <span><i style="background:#0F6B5C"></i> En uso</span>
+      <span><i style="background:#E7C892"></i> Solicitada/Aprobada</span>
+      <span><i style="background:#E3B14F"></i> En preparación</span>
+    </div>
+  </div>
+
+  <div class="occ-scroll" *ngIf="labs.length > 0; else emptyLabs">
+    <div class="occ-grid" [style.gridTemplateRows]="'28px repeat(' + labs.length + ', 34px)'">
+      <div class="occ-corner"></div>
+      <div class="occ-hour" *ngFor="let h of hours">{{ h }}h</div>
+
+      <ng-container *ngFor="let lab of labs">
+        <div class="occ-labname">{{ lab.nombre }}</div>
+        <div
+          *ngFor="let h of hours"
+          class="occ-cell"
+          [style.background]="cellColor(bookingAt(lab.id, h))"
+          (mouseenter)="setHover(lab.id, h, bookingAt(lab.id, h))"
+          (mouseleave)="hoverCell = null"
+        ></div>
+      </ng-container>
+    </div>
+  </div>
+  <ng-template #emptyLabs><p class="text-muted">Sin laboratorios cargados desde el catálogo.</p></ng-template>
+
+  <div class="occ-tooltip" *ngIf="hoverCell as h; else noHover">
+    <strong>{{ h.hour }}:00–{{ h.hour + 1 }}:00</strong> · {{ h.booking.solicitanteNombre }}
+    <span class="mono">· {{ h.booking.id }}</span>
+  </div>
+  <ng-template #noHover><div class="occ-tooltip occ-tooltip--muted">Pasa el cursor sobre un bloque para ver el detalle.</div></ng-template>
+</div>

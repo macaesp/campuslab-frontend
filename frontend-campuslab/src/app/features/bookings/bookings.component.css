@@ -1,0 +1,35 @@
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.btn-primary { background: #003366; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 4px; font-weight: bold; cursor: pointer; }
+.table-card { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); overflow: hidden; }
+
+.responsive-table { width: 100%; border-collapse: collapse; text-align: left; }
+.responsive-table th, .responsive-table td { padding: 1rem; border-bottom: 1px solid #edf2f7; }
+.responsive-table th { background: #f7fafc; color: #4a5568; font-size: 0.85rem; text-transform: uppercase; }
+
+.status-badge { padding: 0.25rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
+.status-badge[data-status="SOLICITADA"] { background: #feefc3; color: #b06000; }
+.status-badge[data-status="APROBADA"] { background: #e1f5fe; color: #0288d1; }
+.status-badge[data-status="EN_PREPARACIÓN"] { background: #e8eaf6; color: #3f51b5; }
+.status-badge[data-status="EN_USO"] { background: #e8f5e9; color: #2e7d32; }
+.status-badge[data-status="DEVUELTA"] { background: #f5f5f5; color: #616161; }
+
+.btn-sm { padding: 0.3rem 0.6rem; border: none; border-radius: 4px; color: white; font-size: 0.8rem; cursor: pointer; margin-right: 0.2rem; }
+.btn-approve { background: #0288d1; }
+.btn-prep { background: #3f51b5; }
+.btn-use { background: #2e7d32; }
+.btn-return { background: #616161; }
+
+.modal-backdrop { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 1rem; background: rgba(0, 26, 51, .55); }
+.booking-form { width: min(100%, 480px); padding: 1.5rem; border-radius: 12px; background: #fff; box-shadow: 0 16px 45px rgba(0,0,0,.2); }
+.form-heading { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; margin-bottom: 1rem; }.form-heading h3 { margin: 0; color: #003366; }.form-heading p { margin: .3rem 0 0; color: #64748b; font-size: .9rem; }
+.close { border: 0; background: transparent; color: #475569; font-size: 1.6rem; cursor: pointer; }.booking-form label { display: grid; gap: .4rem; margin-top: .9rem; color: #334155; font-weight: 600; font-size: .9rem; }.booking-form input, .booking-form select { box-sizing: border-box; width: 100%; padding: .7rem; border: 1px solid #cbd5e1; border-radius: 6px; font: inherit; }.form-actions { display: flex; justify-content: flex-end; gap: .75rem; margin-top: 1.4rem; }.btn-cancel { padding: .6rem 1rem; border: 1px solid #cbd5e1; border-radius: 4px; background: #fff; cursor: pointer; }.form-error { margin: .75rem 0 0; color: #b91c1c; font-size: .9rem; }
+
+/* Vista Móvil: Transforma la tabla a tarjetas (Cards) */
+@media (max-width: 768px) {
+    .responsive-table thead { display: none; }
+    .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td { display: block; width: 100%; }
+    .responsive-table tr { margin-bottom: 1rem; border: 1px solid #e0e0e0; border-radius: 8px; background: white; }
+    .responsive-table td { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; padding: 0.75rem; }
+    .responsive-table td::before { content: attr(data-label); font-weight: bold; color: #718096; font-size: 0.85rem; }
+    .actions-cell { justify-content: flex-end !important; gap: 0.5rem; }
+}

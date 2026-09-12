@@ -1,0 +1,28 @@
+.page-header { margin-bottom: 1.5rem; }
+.subtitle { color: #6c757d; font-size: 0.9rem; margin-top: 0.2rem; }
+
+/* Filtros */
+.filter-card { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.search-input { flex: 1; min-width: 240px; padding: 0.6rem 1rem; border: 1px solid #ced4da; border-radius: 6px; font-size: 0.9rem; }
+.filter-select { padding: 0.6rem 1rem; border: 1px solid #ced4da; border-radius: 6px; font-size: 0.9rem; background: white; }
+
+/* Timeline UI */
+.timeline { position: relative; padding-left: 1.5rem; border-left: 2px solid #dee2e6; margin-left: 0.5rem; }
+.timeline-item { position: relative; margin-bottom: 1.5rem; }
+.timeline-badge { position: absolute; left: -1.95rem; top: 0.25rem; width: 12px; height: 12px; border-radius: 50%; background: #003366; border: 3px solid #f8f9fa; }
+
+.timeline-content { background: white; padding: 1rem 1.25rem; border-radius: 8px; border: 1px solid #e9ecef; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+.timeline-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
+.booking-tag { font-family: monospace; font-weight: bold; background: #e9ecef; color: #495057; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+.timestamp { font-size: 0.8rem; color: #6c757d; }
+
+.action-title { margin: 0.3rem 0; color: #212529; font-size: 1rem; }
+.details { color: #495057; font-size: 0.9rem; margin: 0 0 0.75rem 0; }
+
+.timeline-footer { display: flex; justify-content: space-between; font-size: 0.8rem; color: #6c757d; border-top: 1px solid #f8f9fa; padding-top: 0.5rem; flex-wrap: wrap; gap: 0.5rem; }
+.ip-address { font-family: monospace; }
+
+@media (max-width: 600px) {
+  .filter-card { flex-direction: column; }
+  .filter-select { width: 100%; }
+}

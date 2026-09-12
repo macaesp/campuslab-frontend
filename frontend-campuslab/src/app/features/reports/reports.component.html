@@ -1,0 +1,23 @@
+<section class="view-intro">
+  <p class="eyebrow">ANALÍTICA OPERACIONAL</p>
+  <h2>Reportería</h2>
+  <p>Indicadores procesados desde los eventos de reserva.</p>
+</section>
+
+<div class="stat-row" *ngIf="kpis as k">
+  <article class="stat-card panel"><strong>{{ k.reservasHoy }}</strong><span>Reservas hoy</span></article>
+  <article class="stat-card panel"><strong>{{ k.ocupacionPromedio }}%</strong><span>Ocupación promedio</span></article>
+  <article class="stat-card panel"><strong>{{ k.tiempoCicloPromedioMin }} min</strong><span>Tiempo de ciclo</span></article>
+  <article class="stat-card panel"><strong>{{ k.labsActivos }}</strong><span>Laboratorios activos</span></article>
+</div>
+
+<section class="panel">
+  <h3>Recursos más utilizados</h3>
+  <p class="panel-sub">Resumen de uso durante los últimos siete días.</p>
+  <div class="resource-row" *ngFor="let item of topResources">
+    <strong>{{ item.nombre }}</strong>
+    <div class="bar-track"><div class="bar-fill" [style.width.%]="(item.usos / maxUsos) * 100"></div></div>
+    <span>{{ item.usos }} usos</span>
+  </div>
+  <p *ngIf="!loading && topResources.length === 0" class="text-muted">No hay datos disponibles.</p>
+</section>
