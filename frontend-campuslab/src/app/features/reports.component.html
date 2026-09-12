@@ -1,0 +1,21 @@
+<h1 class="heading" style="font-size:22px; margin-bottom:20px;">Reportería</h1>
+
+<div class="stat-row" *ngIf="kpis as k">
+  <div class="stat-card panel"><div class="stat-value">{{ k.reservasHoy }}</div><div class="stat-label">Reservas hoy</div></div>
+  <div class="stat-card panel"><div class="stat-value">{{ k.tiempoCicloPromedioMin }} min</div><div class="stat-label">Tiempo de ciclo</div></div>
+  <div class="stat-card panel"><div class="stat-value">{{ k.ocupacionPromedio }}%</div><div class="stat-label">Ocupación promedio</div></div>
+  <div class="stat-card panel"><div class="stat-value">{{ k.labsActivos }}</div><div class="stat-label">Labs activos</div></div>
+</div>
+
+<div class="panel">
+  <h3>Recursos más usados</h3>
+  <p class="panel-sub">GET /api/report/top-resources?range=last7d</p>
+  <div class="bar-row" *ngFor="let r of topResources">
+    <span class="bar-label">{{ r.nombre }}</span>
+    <div class="bar-track">
+      <div class="bar-fill" [style.width.%]="(r.usos / maxUsos) * 100"></div>
+    </div>
+    <span class="mono bar-value">{{ r.usos }}</span>
+  </div>
+  <p *ngIf="!loading && topResources.length === 0" class="text-muted">Sin datos disponibles todavía.</p>
+</div>

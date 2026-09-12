@@ -1,0 +1,29 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" routerLink="/dashboard"><span class="brand-mark">⌁</span><span>Campus<span>Lab</span></span></a>
+    <nav class="sidebar-nav">
+      <a
+        *ngFor="let item of items"
+        [routerLink]="item.path"
+        routerLinkActive="nav-item--active"
+        class="nav-item"
+      >
+        <span class="nav-icon">{{ item.icon }}</span>
+        {{ item.label }}
+      </a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="profile"><span class="avatar">{{ roleService.displayName().slice(0, 1) }}</span><span>{{ roleService.displayName() }}<small>{{ roleService.getRoles().join(', ') || 'Sesión activa' }}</small></span></div>
+      <label *ngIf="isDevelopment" class="role-switcher">
+        <span>Vista de prueba</span>
+        <select [(ngModel)]="selectedRole" (ngModelChange)="changeRole($event)">
+          <option *ngFor="let role of roleOptions" [ngValue]="role">{{ roleService.labelFor(role) }}</option>
+        </select>
+      </label>
+      <button class="nav-item nav-item--logout" (click)="logout()">Cerrar sesión</button>
+    </div>
+  </aside>
+  <main class="main">
+    <router-outlet></router-outlet>
+  </main>
+</div>

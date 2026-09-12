@@ -1,0 +1,104 @@
+<h1 class="heading" style="font-size:22px; margin-bottom:20px;">Catálogo de recursos</h1>
+
+<div class="panel-head-row">
+  <div class="tabs">
+    <button class="tab" [class.tab--active]="tab === 'LABORATORIO'" (click)="tab = 'LABORATORIO'">Laboratorios</button>
+    <button class="tab" [class.tab--active]="tab === 'EQUIPO'" (click)="tab = 'EQUIPO'">Equipos</button>
+    <button class="tab" [class.tab--active]="tab === 'INSUMO'" (click)="tab = 'INSUMO'">Insumos</button>
+  </div>
+  <button class="btn-primary" *ngIf="canEdit" (click)="openCreate()">+ Nuevo {{ tab.toLowerCase() }}</button>
+</div>
+
+<div class="panel">
+  <p *ngIf="loading" class="text-muted">Cargando catálogo (GET /api/catalog/resources)…</p>
+
+  <table class="table" *ngIf="!loading && tab === 'LABORATORIO'">
+    <thead><tr><th>Nombre</th><th>Sede</th><th>Capacidad</th><th *ngIf="canEdit"></th></tr></thead>
+    <tbody>
+      <tr *ngFor="let r of filtered">
+        <td>{{ r.nombre }}</td><td>{{ r.sede }}</td><td class="mono">{{ r.capacidad }}</td>
+        <td *ngIf="canEdit"><button class="link-btn" (click)="openEdit(r)">Editar</button></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="table" *ngIf="!loading && tab === 'EQUIPO'">
+    <thead><tr><th>Equipo</th><th>Sede</th><th>Estado</th><th *ngIf="canEdit"></th></tr></thead>
+    <tbody>
+      <tr *ngFor="let r of filtered">
+        <td>{{ r.nombre }}</td><td>{{ r.sede }}</td>
+        <td><span class="badge">{{ r.estado }}</span></td>
+        <td *ngIf="canEdit"><button class="link-btn" (click)="openEdit(r)">Editar</button></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="table" *ngIf="!loading && tab === 'INSUMO'">
+    <thead><tr><th>Insumo</th><th>Sede</th><th>Stock</th><th>Umbral</th><th *ngIf="canEdit"></th></tr></thead>
+    <tbody>
+      <tr *ngFor="let r of filtered">
+        <td>{{ r.nombre }}</td><td>{{ r.sede }}</td>
+        <td class="mono" [class.low]="bajoUmbral(r)">{{ r.stock }} {{ r.unidad }}</td>
+        <td class="mono">{{ r.umbral }} {{ r.unidad }}</td>
+        <td *ngIf="canEdit"><button class="link-btn" (click)="openEdit(r)">Editar</button></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p *ngIf="!loading && filtered.length === 0" class="text-muted">Sin recursos en esta categoría.</p>
+</div>
+
+<div class="panel-overlay" *ngIf="showForm">
+  <div class="panel-modal panel">
+    <h3>{{ editingId ? 'Editar' : 'Nuevo' }} recurso</h3>
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <label class="field-label">Tipo</label>
+      <select class="field-input" formControlName="tipo">
+        <option value="LABORATORIO">Laboratorio</option>
+        <option value="EQUIPO">Equipo</option>
+        <option value="INSUMO">Insumo</option>
+      </select>
+
+      <label class="field-label">Nombre</label>
+      <input class="field-input" formControlName="nombre" />
+
+      <label class="field-label">Sede</label>
+      <input class="field-input" formControlName="sede" placeholder="Instituto Central" />
+
+      <ng-container *ngIf="form.value.tipo === 'LABORATORIO'">
+        <label class="field-label">Capacidad</label>
+        <input class="field-input" type="number" formControlName="capacidad" />
+      </ng-container>
+
+      <ng-container *ngIf="form.value.tipo === 'EQUIPO'">
+        <label class="field-label">Estado</label>
+        <select class="field-input" formControlName="estado">
+          <option value="DISPONIBLE">Disponible</option>
+          <option value="EN_USO">En uso</option>
+          <option value="MANTENIMIENTO">Mantenimiento</option>
+          <option value="NO_DEVUELTO">No devuelto</option>
+        </select>
+      </ng-container>
+
+      <ng-container *ngIf="form.value.tipo === 'INSUMO'">
+        <div class="field-row">
+          <div>
+            <label class="field-label">Stock</label>
+            <input class="field-input" type="number" formControlName="stock" />
+          </div>
+          <div>
+            <label class="field-label">Umbral mínimo</label>
+            <input class="field-input" type="number" formControlName="umbral" />
+          </div>
+        </div>
+        <label class="field-label">Unidad</label>
+        <input class="field-input" formControlName="unidad" placeholder="cajas, L, kg, u." />
+      </ng-container>
+
+      <div class="modal-actions">
+        <button type="button" class="link-btn" (click)="showForm = false">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,46 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h2>Catálogo de Recursos</h2>
+      <p class="subtitle">Gestión de laboratorios, stock de equipos e insumos académicos</p>
+    </div>
+    <button class="btn-primary">+ Nuevo Recurso</button>
+  </div>
+
+  <!-- Filtros Rápidos -->
+  <div class="filter-bar">
+    <button [class.active]="selectedCategory === 'TODOS'" (click)="selectedCategory = 'TODOS'">Todos</button>
+    <button [class.active]="selectedCategory === 'LABORATORIO'" (click)="selectedCategory = 'LABORATORIO'">Laboratorios</button>
+    <button [class.active]="selectedCategory === 'EQUIPO'" (click)="selectedCategory = 'EQUIPO'">Equipos</button>
+    <button [class.active]="selectedCategory === 'INSUMO'" (click)="selectedCategory = 'INSUMO'">Insumos</button>
+  </div>
+
+  <!-- Grid de Tarjetas Adaptable -->
+  <div class="catalog-grid">
+    <div class="resource-card" *ngFor="let item of filteredResources">
+      <div class="card-header">
+        <span class="category-tag" [attr.data-cat]="item.category">{{ item.category }}</span>
+        <span class="code-tag">{{ item.id }}</span>
+      </div>
+      
+      <h3 class="resource-title">{{ item.name }}</h3>
+      <p class="location-info">📍 {{ item.location }}</p>
+
+      <div class="stock-box">
+        <div class="stock-info">
+          <span>Disponibles: <strong>{{ item.available }}</strong></span>
+          <span>Total: {{ item.stock }}</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="(item.available / item.stock) * 100"></div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn-stock" (click)="updateStock(item, -1)">- Stock</button>
+        <button class="btn-stock" (click)="updateStock(item, 1)">+ Stock</button>
+        <button class="btn-edit">Editar</button>
+      </div>
+    </div>
+  </div>
+</div>

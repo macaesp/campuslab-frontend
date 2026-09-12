@@ -1,0 +1,15 @@
+.grid-card { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 18px 20px; margin-bottom: 16px; }
+.grid-card-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.grid-card-head h3 { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600; }
+.legend { display: flex; gap: 12px; font-size: 11px; color: var(--text-muted); }
+.legend span { display: flex; align-items: center; gap: 5px; }
+.legend i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+.occ-scroll { overflow-x: auto; }
+.occ-grid { display: grid; grid-template-columns: 150px repeat(11, 44px); min-width: 640px; }
+.occ-corner { border-bottom: 1px solid var(--border); }
+.occ-hour { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--border); }
+.occ-labname { font-size: 12px; display: flex; align-items: center; padding-right: 8px; border-right: 1px solid var(--border); }
+.occ-cell { margin: 2px; border-radius: 3px; cursor: pointer; }
+.occ-tooltip { margin-top: 10px; font-size: 12px; background: var(--surface-alt); padding: 8px 10px; border-radius: 6px; }
+.occ-tooltip--muted { color: var(--text-muted); }
+.text-muted { color: var(--text-muted); font-size: 13px; }

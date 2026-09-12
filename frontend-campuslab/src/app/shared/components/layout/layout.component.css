@@ -1,0 +1,23 @@
+.app-shell { display: flex; flex-direction: column; min-height: 100vh; font-family: system-ui, -apple-system, sans-serif; }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 1.5rem; background: #003366; color: #ffffff; height: 60px; box-sizing: border-box; }
+.topbar-left { display: flex; align-items: center; gap: 1rem; }
+.brand { color: #ffffff; font-size: 1.25rem; font-weight: bold; letter-spacing: 0.5px; text-decoration: none; }
+.mobile-toggle { display: none; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+.user-badge { display: flex; align-items: center; gap: 1rem; font-size: 0.9rem; }
+.btn-logout { background: #dc3545; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; }
+
+.main-container { display: flex; flex: 1; position: relative; }
+.sidebar { width: 240px; background: #ffffff; border-right: 1px solid #e0e0e0; padding: 1.5rem 0; flex-shrink: 0; }
+.nav-menu { display: flex; flex-direction: column; }
+.nav-menu a { padding: 0.8rem 1.5rem; text-decoration: none; color: #495057; font-weight: 500; transition: background 0.2s; }
+.nav-menu a:hover, .nav-menu a.active { background: #e9ecef; color: #003366; border-left: 4px solid #003366; }
+
+.content { flex: 1; padding: 2rem; background: #f8f9fa; min-width: 0; }
+
+@media (max-width: 768px) {
+    .mobile-toggle { display: block; }
+    .sidebar { position: fixed; top: 60px; left: -240px; height: calc(100vh - 60px); transition: left 0.3s ease; z-index: 1000; box-shadow: 2px 0 8px rgba(0,0,0,0.15); }
+    .sidebar.open { left: 0; }
+    .overlay { position: fixed; top: 60px; left: 0; width: 100vw; height: calc(100vh - 60px); background: rgba(0,0,0,0.4); z-index: 999; }
+    .content { padding: 1rem; }
+}

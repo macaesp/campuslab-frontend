@@ -1,0 +1,24 @@
+.app-shell { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 236px; background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; padding: 18px 12px; flex-shrink: 0;
+}
+.sidebar-brand {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 16px;
+  color: var(--accent-dark); padding: 4px 8px 20px;
+}
+.sidebar-nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.nav-item {
+  display: block; padding: 9px 10px; border-radius: 7px; cursor: pointer;
+  text-decoration: none; color: var(--text-muted); font-size: 13.5px; font-family: inherit;
+  border: none; background: transparent; text-align: left;
+}
+.nav-item:hover { background: var(--surface-alt); }
+.nav-item--active { background: #EAF3F0; color: var(--accent-dark); font-weight: 500; }
+.sidebar-user { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 8px; }
+.sidebar-user-name { font-size: 13px; padding: 0 10px; }
+.sidebar-user-role { color: var(--text-muted); padding: 2px 10px 10px; }
+.nav-item--logout { color: var(--text-muted); width: 100%; }
+.role-switcher { display: grid; gap: 5px; padding: 12px 10px 4px; color: var(--text-muted); font-size: 12px; }
+.role-switcher select { width: 100%; padding: 7px 8px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--text); font: inherit; }
+.main { flex: 1; padding: 22px 30px 60px; min-width: 0; }
