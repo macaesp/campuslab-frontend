@@ -1,46 +1,83 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { MsalService } from '@azure/msal-angular';
+import { environment } from '../../../environments/environment';
 import { Booking, BookingStatus, CreateBookingRequest } from '../models/booking.model';
 
-/**
- * Datos locales temporales para demostrar las vistas antes de integrar servicios externos.
- */
+interface BookingDto {
+  id: number;
+  resourceId: number;
+  studentEmail: string;
+  status: BookingStatus;
+  startTime?: string;
+  endTime?: string;
+  createdAt?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class BookingsService {
-  private bookings: Booking[] = [
-    { id: 'RES-001', labId: 'LAB-REDES', labNombre: 'Laboratorio de Redes', resourceNombre: 'Kit de redes', solicitanteId: 'u-1', solicitanteNombre: 'Macarena Espinoza', fecha: '2026-09-12', horaInicio: '10:00', horaFin: '12:00', status: 'SOLICITADA', sede: 'Sede Central', createdAt: '2026-09-11T10:00:00Z' },
-    { id: 'RES-002', labId: 'LAB-ELECT', labNombre: 'Laboratorio de Electrónica', resourceNombre: 'Osciloscopio digital', solicitanteId: 'u-2', solicitanteNombre: 'Ignacio Pérez', fecha: '2026-09-12', horaInicio: '14:00', horaFin: '16:00', status: 'APROBADA', sede: 'Sede Central', createdAt: '2026-09-11T11:00:00Z' },
-    { id: 'RES-003', labId: 'LAB-INF', labNombre: 'Laboratorio de Informática', resourceNombre: 'Notebook', solicitanteId: 'u-3', solicitanteNombre: 'Ana Torres', fecha: '2026-09-13', horaInicio: '09:00', horaFin: '11:00', status: 'SOLICITADA', sede: 'Sede Central', createdAt: '2026-09-11T12:00:00Z' },
-  ];
+  private readonly apiUrl = `${environment.apiUrl}/api/bookings`;
+
+  constructor(
+    private http: HttpClient,
+    private msal: MsalService,
+  ) {}
 
   create(body: CreateBookingRequest): Observable<Booking> {
-    const booking: Booking = {
-      id: `RES-${String(this.bookings.length + 1).padStart(3, '0')}`,
-      labId: body.labId, labNombre: 'Laboratorio seleccionado', resourceId: body.resourceId,
-      solicitanteId: 'demo-user', solicitanteNombre: 'Usuario', fecha: body.fecha,
-      horaInicio: body.horaInicio, horaFin: body.horaFin, status: 'SOLICITADA',
-      sede: 'Sede Central', createdAt: new Date().toISOString(),
-    };
-    this.bookings = [booking, ...this.bookings];
-    return of(booking);
+    const account = this.msal.instance.getActiveAccount();
+    return this.http
+      .post<BookingDto>(this.apiUrl, {
+        resourceId: Number(body.resourceId || body.labId),
+        studentEmail: account?.username ?? '',
+        startTime: `${body.fecha}T${body.horaInicio}:00`,
+        endTime: `${body.fecha}T${body.horaFin}:00`,
+      })
+      .pipe(map((booking) => this.toModel(booking)));
   }
 
   getById(id: string): Observable<Booking> {
-    return of(this.bookings.find((booking) => booking.id === id)!);
+    return this.http
+      .get<BookingDto>(`${this.apiUrl}/${id}`)
+      .pipe(map((booking) => this.toModel(booking)));
   }
 
   updateStatus(id: string, status: BookingStatus): Observable<Booking> {
-    const booking = this.bookings.find((item) => item.id === id)!;
-    const updated = { ...booking, status };
-    this.bookings = this.bookings.map((item) => item.id === id ? updated : item);
-    return of(updated);
+    return this.http
+      .put<BookingDto>(`${this.apiUrl}/${id}/status`, { status })
+      .pipe(map((booking) => this.toModel(booking)));
   }
 
   list(filters?: { status?: BookingStatus; from?: string; to?: string }): Observable<Booking[]> {
-    return of(this.bookings.filter((booking) =>
-      (!filters?.status || booking.status === filters.status) &&
-      (!filters?.from || booking.fecha >= filters.from) &&
-      (!filters?.to || booking.fecha <= filters.to),
-    ));
+    return this.http.get<BookingDto[]>(this.apiUrl).pipe(
+      map((bookings) => bookings.map((booking) => this.toModel(booking))),
+      map((bookings) =>
+        bookings.filter(
+          (booking) =>
+            (!filters?.status || booking.status === filters.status) &&
+            (!filters?.from || booking.fecha >= filters.from) &&
+            (!filters?.to || booking.fecha <= filters.to),
+        ),
+      ),
+    );
+  }
+
+  private toModel(booking: BookingDto): Booking {
+    const start = booking.startTime ?? '';
+    const end = booking.endTime ?? '';
+    return {
+      id: String(booking.id),
+      labId: String(booking.resourceId),
+      labNombre: 'Recurso reservado',
+      resourceId: String(booking.resourceId),
+      solicitanteId: booking.studentEmail,
+      solicitanteNombre: booking.studentEmail,
+      fecha: start.slice(0, 10),
+      horaInicio: start.slice(11, 16),
+      horaFin: end.slice(11, 16),
+      status: booking.status,
+      sede: '',
+      createdAt: booking.createdAt ?? '',
+    };
   }
 }
