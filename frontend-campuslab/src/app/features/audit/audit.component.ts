@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuditService } from '../../core/services/audit.service';
@@ -15,8 +15,10 @@ import { AuditEvent } from '../../core/models/audit.model';
 export class AuditComponent implements OnInit {
   private auditSvc = inject(AuditService);
 
+  readonly actionLabels: Record<string, string> = { SOLICITO: 'Solicitó', APROBO: 'Aprobó', ENTREGO: 'Entregó', RECIBIO: 'Recibió', DEVOLVIO: 'Devolvió', CANCELO: 'Canceló' };
   events: AuditEvent[] = [];
-  loading = true;
+  private cdr = inject(ChangeDetectorRef); loading = true;
+  unavailable = false;
 
   filtroUsuario = '';
   filtroDesde = '';
@@ -40,7 +42,10 @@ export class AuditComponent implements OnInit {
       })
       .subscribe({
         next: (e) => { this.events = e; this.loading = false; },
-        error: () => { this.loading = false; },
+        error: () => { this.loading = false; this.unavailable = true; this.cdr.markForCheck(); },
       });
   }
 }
+
+
+

@@ -2,8 +2,8 @@
 
 <div class="stat-row" *ngIf="kpis as k">
   <div class="stat-card panel"><div class="stat-value">{{ k.reservasHoy }}</div><div class="stat-label">Reservas hoy</div></div>
-  <div class="stat-card panel"><div class="stat-value">{{ k.tiempoCicloPromedioMin }} min</div><div class="stat-label">Tiempo de ciclo</div></div>
-  <div class="stat-card panel"><div class="stat-value">{{ k.ocupacionPromedio }}%</div><div class="stat-label">Ocupación promedio</div></div>
+  <div class="stat-card panel"><div class="stat-value">{{ k.reservasEnUso }}</div><div class="stat-label">Reservas en uso</div></div>
+  <div class="stat-card panel"><div class="stat-value">{{ k.reservasAprobadas }}</div><div class="stat-label">Reservas aprobadas</div></div>
   <div class="stat-card panel"><div class="stat-value">{{ k.labsActivos }}</div><div class="stat-label">Labs activos</div></div>
 </div>
 
@@ -19,3 +19,4 @@
   </div>
   <p *ngIf="!loading && topResources.length === 0" class="text-muted">Sin datos disponibles todavía.</p>
 </div>
+

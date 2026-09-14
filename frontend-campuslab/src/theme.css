@@ -12,3 +12,43 @@
 
 body, button, input, select, textarea { font-family: 'DM Sans', Arial, sans-serif; }
 h1, h2, h3, .heading, .brand { font-family: 'Space Grotesk', 'DM Sans', Arial, sans-serif; }
+
+/* Shared action buttons for catalog and booking forms. */
+.btn-primary, .link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background-color .15s, border-color .15s;
+}
+.btn-primary { background: var(--accent); color: #fff; box-shadow: 0 3px 8px rgba(52,88,219,.18); }
+.btn-primary:hover:not(:disabled) { background: var(--accent-dark); }
+.link-btn { background: #edf0ff; border-color: #cfd8ff; color: #2947ba; }
+.link-btn:hover:not(:disabled) { background: #dfe5ff; border-color: #aabaff; }
+.link-btn.danger { background: #fee5e3; border-color: #f4c4c0; color: #a9322b; }
+.link-btn.danger:hover:not(:disabled) { background: #fbd6d3; }
+button:focus-visible { outline: 3px solid #3458db; outline-offset: 3px; }
+.btn-primary:disabled, .link-btn:disabled { opacity: .55; cursor: not-allowed; box-shadow: none; }
+.modal-actions { flex-wrap: wrap; gap: 10px; }
+.modal-actions .link-btn { background: #fff; color: var(--text); border-color: #cbd3df; }
+.modal-actions .link-btn:hover:not(:disabled) { background: var(--surface-alt); }
+.panel-head-row { gap: 16px; flex-wrap: wrap; }
+@media (max-width: 480px) {
+  .panel-modal { width: calc(100% - 24px); }
+  .modal-actions > button { flex: 1; }
+}
+.panel-modal { font-family: 'DM Sans', Arial, sans-serif; font-size: 14px; line-height: 1.5; }
+.panel-modal h3 { font-size: 20px; line-height: 1.3; font-weight: 700; margin-bottom: 18px; }
+.panel-modal .field-label { font-size: 13px; font-weight: 600; color: #53627a; }
+.panel-modal .field-input { font-size: 14px; line-height: 1.5; color: var(--text); background: #fff; padding: 10px 12px; }
+.panel-modal .field-help { margin: 7px 0 0; font-size: 13px; line-height: 1.5; color: #53627a; }
+.panel-modal [role="alert"] { font-size: 13px; color: #a9322b; margin-top: 12px; }
+

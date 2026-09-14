@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { forkJoin } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ReportService } from '../../core/services/report.service';
 import { KpiSummary, TopResource } from '../../core/models/audit.model';
@@ -17,16 +18,17 @@ export class ReportsComponent implements OnInit {
   kpis: KpiSummary | null = null;
   topResources: TopResource[] = [];
   loading = true;
+  loadError = '';
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
-    this.reportSvc.getKpis('last24h').subscribe({ next: (k) => (this.kpis = k) });
-    this.reportSvc.getTopResources('last7d').subscribe({
-      next: (t) => { this.topResources = t; this.loading = false; },
-      error: () => { this.loading = false; },
+    forkJoin({ kpis: this.reportSvc.getKpis(), top: this.reportSvc.getTopResources() }).subscribe({
+      next: ({ kpis, top }) => { this.kpis = kpis; this.topResources = top; this.loading = false; this.cdr.markForCheck(); },
+      error: () => { this.loadError = 'No se pudieron cargar los reportes. Comprueba la conexión con catálogo y reservas.'; this.loading = false; this.cdr.markForCheck(); },
     });
   }
-
   get maxUsos(): number {
     return Math.max(1, ...this.topResources.map((r) => r.usos));
   }
 }
+

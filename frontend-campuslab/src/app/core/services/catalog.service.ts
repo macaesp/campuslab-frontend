@@ -1,30 +1,67 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { CatalogResource } from '../models/resource.model';
 
-@Injectable({ providedIn: 'root' })
+interface CatalogResourceDto {
+  id: number;
+  name: string;
+  description?: string;
+  type: CatalogResource['tipo'];
+  availableStock: number;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
 export class CatalogService {
-  private resources: CatalogResource[] = [
-    { id: 'LAB-REDES', tipo: 'LABORATORIO', nombre: 'Laboratorio de Redes', sede: 'Sede Central', capacidad: 30 },
-    { id: 'LAB-ELECT', tipo: 'LABORATORIO', nombre: 'Laboratorio de Electrónica', sede: 'Sede Central', capacidad: 24 },
-    { id: 'EQ-001', tipo: 'EQUIPO', nombre: 'Osciloscopio Digital', sede: 'Sede Central', estado: 'DISPONIBLE' },
-    { id: 'INS-001', tipo: 'INSUMO', nombre: 'Kit Arduino', sede: 'Sede Central', stock: 12, umbral: 10, unidad: 'unidades' },
-  ];
+  private apiUrl = `${environment.apiUrl}/api/catalog/resources`;
+
+  constructor(private http: HttpClient) {}
 
   list(): Observable<CatalogResource[]> {
-    return of(this.resources);
+    return this.http
+      .get<CatalogResourceDto[]>(this.apiUrl)
+      .pipe(map((resources) => resources.map((resource) => this.toModel(resource))));
   }
 
-  create(resource: Partial<CatalogResource>): Observable<CatalogResource> {
-    const saved = { ...resource, id: `REC-${String(this.resources.length + 1).padStart(3, '0')}` } as CatalogResource;
-    this.resources = [saved, ...this.resources];
-    return of(saved);
+  create(payload: Partial<CatalogResource>): Observable<CatalogResource> {
+    return this.http
+      .post<CatalogResourceDto>(this.apiUrl, this.toDto(payload))
+      .pipe(map((resource) => this.toModel(resource)));
   }
 
-  update(id: string, resource: Partial<CatalogResource>): Observable<CatalogResource> {
-    const current = this.resources.find((item) => item.id === id)!;
-    const saved = { ...current, ...resource } as CatalogResource;
-    this.resources = this.resources.map((item) => item.id === id ? saved : item);
-    return of(saved);
+  update(id: string | number, payload: Partial<CatalogResource>): Observable<CatalogResource> {
+    return this.http
+      .put<CatalogResourceDto>(`${this.apiUrl}/${id}`, this.toDto(payload))
+      .pipe(map((resource) => this.toModel(resource)));
+  }
+
+  private toModel(resource: CatalogResourceDto): CatalogResource {
+    return {
+      id: String(resource.id),
+      tipo: resource.type,
+      nombre: resource.name,
+      sede: resource.description ?? '',
+      stock: resource.availableStock,
+      capacidad: resource.type === 'LABORATORIO' ? resource.availableStock : undefined,
+      estado:
+        resource.type === 'EQUIPO'
+          ? resource.availableStock > 0
+            ? 'DISPONIBLE'
+            : 'SIN_STOCK'
+          : undefined,
+    };
+  }
+
+  private toDto(resource: Partial<CatalogResource>): Omit<CatalogResourceDto, 'id'> {
+    return {
+      name: resource.nombre ?? '',
+      description: resource.sede ?? '',
+      type: resource.tipo ?? 'INSUMO',
+      availableStock: resource.stock ?? resource.capacidad ?? 0,
+    };
   }
 }
+
