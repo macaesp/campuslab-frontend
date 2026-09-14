@@ -10,9 +10,13 @@
 </div>
 
 <div class="panel">
+  <div *ngIf="loadError" role="alert">
+    <p>{{ loadError }}</p>
+    <button class="link-btn" (click)="load()">Reintentar</button>
+  </div>
   <p *ngIf="loading" class="text-muted">Cargando catálogo (GET /api/catalog/resources)…</p>
 
-  <table class="table" *ngIf="!loading && tab === 'LABORATORIO'">
+  <table class="table" *ngIf="!loading && !loadError && tab === 'LABORATORIO'">
     <thead><tr><th>Nombre</th><th>Sede</th><th>Capacidad</th><th *ngIf="canEdit"></th></tr></thead>
     <tbody>
       <tr *ngFor="let r of filtered">
@@ -22,18 +26,18 @@
     </tbody>
   </table>
 
-  <table class="table" *ngIf="!loading && tab === 'EQUIPO'">
-    <thead><tr><th>Equipo</th><th>Sede</th><th>Estado</th><th *ngIf="canEdit"></th></tr></thead>
+  <table class="table" *ngIf="!loading && !loadError && tab === 'EQUIPO'">
+    <thead><tr><th>Equipo</th><th>Sede</th><th>Stock disponible</th><th>Disponibilidad</th><th *ngIf="canEdit"></th></tr></thead>
     <tbody>
       <tr *ngFor="let r of filtered">
         <td>{{ r.nombre }}</td><td>{{ r.sede }}</td>
-        <td><span class="badge">{{ r.estado }}</span></td>
+        <td>{{ r.stock }}</td><td><span class="badge">{{ (r.stock ?? 0) > 0 ? "Disponible" : "Sin stock" }}</span></td>
         <td *ngIf="canEdit"><button class="link-btn" (click)="openEdit(r)">Editar</button></td>
       </tr>
     </tbody>
   </table>
 
-  <table class="table" *ngIf="!loading && tab === 'INSUMO'">
+  <table class="table" *ngIf="!loading && !loadError && tab === 'INSUMO'">
     <thead><tr><th>Insumo</th><th>Sede</th><th>Stock</th><th>Umbral</th><th *ngIf="canEdit"></th></tr></thead>
     <tbody>
       <tr *ngFor="let r of filtered">
@@ -45,7 +49,7 @@
     </tbody>
   </table>
 
-  <p *ngIf="!loading && filtered.length === 0" class="text-muted">Sin recursos en esta categoría.</p>
+  <p *ngIf="!loading && !loadError && filtered.length === 0" class="text-muted">Sin recursos en esta categoría.</p>
 </div>
 
 <div class="panel-overlay" *ngIf="showForm">
@@ -71,13 +75,9 @@
       </ng-container>
 
       <ng-container *ngIf="form.value.tipo === 'EQUIPO'">
-        <label class="field-label">Estado</label>
-        <select class="field-input" formControlName="estado">
-          <option value="DISPONIBLE">Disponible</option>
-          <option value="EN_USO">En uso</option>
-          <option value="MANTENIMIENTO">Mantenimiento</option>
-          <option value="NO_DEVUELTO">No devuelto</option>
-        </select>
+        <label class="field-label">Stock disponible</label>
+        <input class="field-input" type="number" min="0" step="1" formControlName="stock" />
+        <p class="field-help">Indica cuántas unidades están disponibles para reservar.</p>
       </ng-container>
 
       <ng-container *ngIf="form.value.tipo === 'INSUMO'">
@@ -95,10 +95,12 @@
         <input class="field-input" formControlName="unidad" placeholder="cajas, L, kg, u." />
       </ng-container>
 
-      <div class="modal-actions">
+      <p *ngIf="saveError" role="alert">{{ saveError }}</p><p *ngIf="form.controls.stock.invalid">El stock debe ser un número entero igual o mayor que cero.</p><div class="modal-actions">
         <button type="button" class="link-btn" (click)="showForm = false">Cancelar</button>
-        <button type="submit" class="btn-primary" [disabled]="form.invalid">Guardar</button>
+        <button type="submit" class="btn-primary" [disabled]="form.invalid || saving">{{ saving ? "Guardando…" : "Guardar" }}</button>
       </div>
     </form>
   </div>
 </div>
+
+

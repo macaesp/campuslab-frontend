@@ -17,8 +17,8 @@ export interface AuditFilter {
 
 export interface KpiSummary {
   reservasHoy: number;
-  ocupacionPromedio: number;   // %
-  tiempoCicloPromedioMin: number;
+  reservasAprobadas: number;
+  reservasEnUso: number;
   labsActivos: number;
 }
 
@@ -26,3 +26,5 @@ export interface TopResource {
   nombre: string;
   usos: number;
 }
+
+

@@ -1,3 +1,4 @@
+import { RoleService } from './core/auth/role.service';
 import {
 
   Component,
@@ -50,6 +51,7 @@ export class App implements OnInit, OnDestroy {
 
 
 
+  private readonly roles = inject(RoleService);
   private readonly msalService = inject(MsalService);
 
   private readonly msalBroadcastService = inject(MsalBroadcastService);
@@ -75,6 +77,7 @@ export class App implements OnInit, OnDestroy {
       .subscribe({
 
         next: (result) => {
+          this.roles.refreshAccount(result?.account);
 
           this.updateLoginStatus();
 
@@ -157,6 +160,7 @@ export class App implements OnInit, OnDestroy {
 
 
   private updateLoginStatus(): void {
+    this.roles.refreshAccount();
 
     const hasAccounts =
 

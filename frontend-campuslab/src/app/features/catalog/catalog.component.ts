@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RoleService } from '../../core/auth/role.service';
@@ -15,14 +15,18 @@ import { CatalogResource, ResourceType } from '../../core/models/resource.model'
 })
 export class CatalogComponent implements OnInit {
   private catalogSvc = inject(CatalogService);
+  private cdr = inject(ChangeDetectorRef);
   private fb = inject(FormBuilder);
   roleService = inject(RoleService);
 
   resources: CatalogResource[] = [];
   loading = true;
+  loadError = '';
   tab: ResourceType = 'LABORATORIO';
 
   showForm = false;
+  saving = false;
+  saveError = '';
   editingId: string | null = null;
 
   form = this.fb.group({
@@ -31,7 +35,7 @@ export class CatalogComponent implements OnInit {
     sede: ['', Validators.required],
     capacidad: [0],
     estado: ['DISPONIBLE'],
-    stock: [0],
+    stock: [0, [Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]],
     umbral: [0],
     unidad: [''],
   });
@@ -42,10 +46,17 @@ export class CatalogComponent implements OnInit {
 
   load(): void {
     this.loading = true;
+    this.loadError = '';
     // GET /api/catalog/resources
     this.catalogSvc.list().subscribe({
-      next: (r) => { this.resources = r; this.loading = false; },
-      error: () => { this.loading = false; },
+      next: (r) => { this.resources = r; this.loading = false; this.cdr.markForCheck(); },
+            error: (err) => {
+        this.loading = false;
+        this.loadError = err.status === 401 || err.status === 403
+          ? 'No se pudo acceder al catálogo. Revisa los permisos de tu cuenta para la API.'
+          : 'No se pudo cargar el catálogo. Comprueba que el BFF y el servicio de catálogo estén iniciados.';
+        this.cdr.markForCheck();
+      },
     });
   }
 
@@ -62,12 +73,14 @@ export class CatalogComponent implements OnInit {
   }
 
   openCreate(): void {
+    this.saveError = '';
     this.editingId = null;
     this.form.reset({ tipo: this.tab, nombre: '', sede: '', capacidad: 0, estado: 'DISPONIBLE', stock: 0, umbral: 0, unidad: '' });
     this.showForm = true;
   }
 
   openEdit(r: CatalogResource): void {
+    this.saveError = '';
     this.editingId = r.id;
     this.form.reset({
       tipo: r.tipo, nombre: r.nombre, sede: r.sede,
@@ -78,13 +91,13 @@ export class CatalogComponent implements OnInit {
   }
 
   save(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid || this.saving) return;
     const v = this.form.getRawValue();
     const payload: Partial<CatalogResource> = {
       tipo: v.tipo!, nombre: v.nombre!, sede: v.sede!,
       capacidad: v.tipo === 'LABORATORIO' ? Number(v.capacidad) : undefined,
       estado: v.tipo === 'EQUIPO' ? (v.estado as CatalogResource['estado']) : undefined,
-      stock: v.tipo === 'INSUMO' ? Number(v.stock) : undefined,
+      stock: v.tipo !== 'LABORATORIO' ? Number(v.stock) : undefined,
       umbral: v.tipo === 'INSUMO' ? Number(v.umbral) : undefined,
       unidad: v.tipo === 'INSUMO' ? v.unidad! : undefined,
     };
@@ -93,12 +106,21 @@ export class CatalogComponent implements OnInit {
       ? this.catalogSvc.update(this.editingId, payload)   // PUT /api/catalog/resources/{id}
       : this.catalogSvc.create(payload);                  // POST /api/catalog/resources
 
+    this.saving = true;
+    this.saveError = '';
     req$.subscribe({
       next: (saved) => {
         this.resources = this.editingId
           ? this.resources.map((r) => (r.id === saved.id ? saved : r))
           : [saved, ...this.resources];
         this.showForm = false;
+        this.saving = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.saving = false;
+        this.saveError = 'No se pudo guardar el recurso. Revisa la conexión y los permisos e inténtalo nuevamente.';
+        this.cdr.markForCheck();
       },
     });
   }

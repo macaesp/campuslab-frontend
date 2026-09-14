@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, effect, inject, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { RoleService } from '../../core/auth/role.service';
@@ -25,41 +25,42 @@ import { OccupancyGridComponent } from '../../shared/occupancy-grid/occupancy-gr
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent {
   private bookingsSvc = inject(BookingsService);
   private catalogSvc = inject(CatalogService);
   private reportSvc = inject(ReportService);
   roleService = inject(RoleService);
 
-  kpis: KpiSummary | null = { reservasHoy: 18, ocupacionPromedio: 72, tiempoCicloPromedioMin: 42, labsActivos: 16 };
+  kpis: KpiSummary | null = null;
   bookings: Booking[] = [];
-  resources: CatalogResource[] = [
-    { id: 'LAB-REDES', tipo: 'LABORATORIO', nombre: 'Laboratorio de Redes', sede: 'Sede Central', capacidad: 30 },
-    { id: 'LAB-ELECT', tipo: 'LABORATORIO', nombre: 'Laboratorio de Electrónica', sede: 'Sede Central', capacidad: 24 },
-    { id: 'EQ-001', tipo: 'EQUIPO', nombre: 'Osciloscopio Digital', sede: 'Sede Central', estado: 'NO_DEVUELTO' },
-    { id: 'INS-001', tipo: 'INSUMO', nombre: 'Kit Arduino', sede: 'Sede Central', stock: 8, umbral: 10, unidad: 'unidades' }
-  ];
+  resources: CatalogResource[] = [];
   loading = true;
+  loadError = '';
+  private cdr = inject(ChangeDetectorRef);
 
-  ngOnInit(): void {
-    // Evita que los datos de demostración cambien la vista durante el render inicial.
-    queueMicrotask(() => this.loadDashboard());
+  constructor() {
+    effect(() => {
+      if (this.roleService.sessionReady() && this.roleService.getRoles().length > 0) {
+        untracked(() => this.loadDashboard());
+      }
+    });
   }
 
   private loadDashboard(): void {
     this.bookingsSvc.list().subscribe({
-      next: (b) => { this.bookings = b; this.loading = false; },
-      error: () => { this.loading = false; },
+      next: (b) => { this.bookings = b; this.loading = false; this.cdr.markForCheck(); },
+      error: () => { this.loadError = 'No se pudieron cargar las reservas.'; this.loading = false; this.cdr.markForCheck(); },
     });
 
-    if (this.roleService.isAdmin()) {
+    if (this.roleService.isAdmin() || this.roleService.isOperador()) {
       // GET /api/report/kpis?range=last24h
-      this.reportSvc.getKpis('last24h').subscribe({ next: (k) => (this.kpis = k), error: () => (this.kpis = null) });
+      this.reportSvc.getKpis('last24h').subscribe({ next: (k) => { this.kpis = k; this.cdr.markForCheck(); }, error: () => (this.kpis = null) });
       // GET /api/catalog/resources -> alimenta la grilla de ocupación y las alertas
-      this.catalogSvc.list().subscribe({ next: (r) => (this.resources = r) });
+      this.catalogSvc.list().subscribe({ next: (r) => { this.resources = r; this.cdr.markForCheck(); }, error: () => { this.loadError = 'No se pudo cargar el catálogo.'; this.cdr.markForCheck(); } });
     }
   }
 
+  get recursosDisponibles(): number { return this.resources.filter(r => (r.stock ?? 0) > 0).length; }
   get labs(): CatalogResource[] {
     return this.resources.filter((r) => r.tipo === 'LABORATORIO');
   }
@@ -80,3 +81,6 @@ export class DashboardComponent implements OnInit {
     return this.bookings.filter((b) => b.status !== 'CANCELADA' && b.status !== 'DEVUELTA');
   }
 }
+
+
+

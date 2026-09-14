@@ -33,7 +33,7 @@ export class ShellComponent {
   private msal = inject(MsalService);
   private router = inject(Router);
   roleService = inject(RoleService);
-  readonly isDevelopment = !environment.production;
+  readonly isDevelopment = !environment.production && environment.allowRolePreview;
   selectedRole: AppRole = this.roleService.getRoles()[0];
   readonly roleOptions: AppRole[] = ['Admin', 'OperadorDominio', 'ClienteDominio', 'Auditor'];
 

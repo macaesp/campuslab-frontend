@@ -1,3 +1,4 @@
+<p *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
 <h1 class="heading" style="font-size:22px; margin-bottom:20px;">Reservas</h1>
 
 <div class="panel">
@@ -44,7 +45,7 @@
     </tbody>
   </table>
   <ng-template #loadingTpl><p class="text-muted">Cargando reservas (GET /api/bookings)…</p></ng-template>
-  <p *ngIf="!loading && bookings.length === 0" class="text-muted">No hay reservas con ese filtro.</p>
+  <p *ngIf="!loading && !errorMessage && bookings.length === 0" class="text-muted">No hay reservas con ese filtro.</p>
 </div>
 
 <div class="panel-overlay" *ngIf="showForm">

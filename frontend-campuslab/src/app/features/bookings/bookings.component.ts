@@ -30,6 +30,7 @@ export class BookingsComponent implements OnInit {
   labs: CatalogResource[] = [];
   equipos: CatalogResource[] = [];
   loading = true;
+  errorMessage = '';
   showForm = false;
   statusFilter: BookingStatus | 'todas' = 'todas';
 
@@ -45,6 +46,7 @@ export class BookingsComponent implements OnInit {
     this.refresh();
     // GET /api/catalog/resources -> puebla los selects de laboratorio/equipo del formulario
     this.catalogSvc.list().subscribe({
+      error: () => { this.errorMessage = 'No se pudieron cargar los recursos del catálogo.'; },
       next: (r) => {
         this.labs = r.filter((x) => x.tipo === 'LABORATORIO');
         this.equipos = r.filter((x) => x.tipo === 'EQUIPO');
@@ -53,11 +55,12 @@ export class BookingsComponent implements OnInit {
   }
 
   refresh(): void {
+    this.errorMessage = '';
     this.loading = true;
     const status = this.statusFilter === 'todas' ? undefined : this.statusFilter;
     this.bookingsSvc.list({ status }).subscribe({
       next: (b) => { this.bookings = b; this.loading = false; },
-      error: () => { this.loading = false; },
+      error: () => { this.loading = false; this.errorMessage = 'No se pudieron cargar las reservas. Revisa la conexión y los permisos de tu cuenta.'; },
     });
   }
 
@@ -73,8 +76,10 @@ export class BookingsComponent implements OnInit {
   }
 
   changeStatus(booking: Booking, next: BookingStatus): void {
+    this.errorMessage = '';
     // PUT /api/bookings/{id}/status
     this.bookingsSvc.updateStatus(booking.id, next).subscribe({
+      error: (err) => { this.errorMessage = err.status === 409 ? 'No hay stock disponible o el cambio de estado no está permitido.' : 'No se pudo confirmar el cambio. Reintenta la misma operación.'; },
       next: (updated) => {
         this.bookings = this.bookings.map((b) => (b.id === updated.id ? updated : b));
       },
@@ -94,6 +99,7 @@ export class BookingsComponent implements OnInit {
         horaFin: v.horaFin!,
       })
       .subscribe({
+        error: () => { this.errorMessage = 'No se pudo crear la reserva. Revisa los datos y la conexión.'; },
         next: (created) => {
           this.bookings = [created, ...this.bookings];
           this.form.reset();

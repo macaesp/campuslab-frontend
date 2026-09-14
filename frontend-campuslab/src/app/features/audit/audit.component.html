@@ -1,11 +1,11 @@
 <h1 class="heading" style="font-size:22px; margin-bottom:20px;">Auditoría</h1>
 
-<div class="panel">
+<div class="panel"><p *ngIf="unavailable" role="status">Historial no disponible: el servicio de auditoría aún no está conectado.</p>
   <div class="filters">
-    <input class="field-input" placeholder="Usuario…" [(ngModel)]="filtroUsuario" (change)="buscar()" />
-    <input class="field-input" type="date" [(ngModel)]="filtroDesde" (change)="buscar()" />
-    <input class="field-input" type="date" [(ngModel)]="filtroHasta" (change)="buscar()" />
-    <select class="field-input" [(ngModel)]="filtroTipo" (change)="buscar()">
+    <label class="filter-field">Usuario<input class="field-input" placeholder="Usuario…" [(ngModel)]="filtroUsuario" (change)="buscar()" /></label>
+    <label class="filter-field">Desde<input class="field-input" type="date" [(ngModel)]="filtroDesde" (change)="buscar()" /></label>
+    <label class="filter-field">Hasta<input class="field-input" type="date" [(ngModel)]="filtroHasta" (change)="buscar()" /></label>
+    <label class="filter-field">Acción<select class="field-input" [(ngModel)]="filtroTipo" (change)="buscar()">
       <option value="">Todas las acciones</option>
       <option value="SOLICITO">Solicitó</option>
       <option value="APROBO">Aprobó</option>
@@ -13,22 +13,24 @@
       <option value="RECIBIO">Recibió</option>
       <option value="DEVOLVIO">Devolvió</option>
       <option value="CANCELO">Canceló</option>
-    </select>
+    </select></label>
   </div>
 
-  <table class="table" *ngIf="!loading; else loadingTpl">
+  <div class="table-scroll"><table class="table" *ngIf="!loading; else loadingTpl">
     <thead><tr><th>Fecha / hora</th><th>Persona</th><th>Rol</th><th>Acción</th><th>Objeto</th><th>Sede</th></tr></thead>
     <tbody>
       <tr *ngFor="let e of events">
-        <td class="mono">{{ e.timestamp }}</td>
+        <td class="event-date"><strong>{{ e.timestamp | date:"dd/MM/yyyy" }}</strong><span>{{ e.timestamp | date:"HH:mm" }}</span></td>
         <td>{{ e.actorNombre }}</td>
         <td>{{ e.actorRol }}</td>
-        <td>{{ e.accion }}</td>
+        <td>{{ actionLabels[e.accion] || e.accion }}</td>
         <td class="mono">{{ e.objeto }}</td>
         <td>{{ e.sede }}</td>
       </tr>
     </tbody>
-  </table>
-  <ng-template #loadingTpl><p class="text-muted">Cargando timeline (GET /api/audit/events)…</p></ng-template>
-  <p *ngIf="!loading && events.length === 0" class="text-muted">Sin eventos que coincidan con la búsqueda.</p>
+  </table></div>
+  <ng-template #loadingTpl><p class="text-muted">Cargando eventos…</p></ng-template>
+  <p *ngIf="!loading && !unavailable && events.length === 0" class="text-muted">Sin eventos que coincidan con la búsqueda.</p>
 </div>
+
+

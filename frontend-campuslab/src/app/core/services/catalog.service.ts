@@ -50,7 +50,7 @@ export class CatalogService {
         resource.type === 'EQUIPO'
           ? resource.availableStock > 0
             ? 'DISPONIBLE'
-            : 'NO_DEVUELTO'
+            : 'SIN_STOCK'
           : undefined,
     };
   }
@@ -64,3 +64,4 @@ export class CatalogService {
     };
   }
 }
+

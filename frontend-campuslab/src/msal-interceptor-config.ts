@@ -10,11 +10,11 @@ export function msalInterceptorConfigFactory(): MsalInterceptorConfiguration {
   protectedResourceMap.set(`${environment.apiUrl}/api/*`, [
     // IMPORTANTE: Reemplaza esto con el App ID URI / Scope que expusiste en Azure AD para tu API.
     // Suele verse como 'api://<TU_API_CLIENT_ID>/access_as_user' o similar.
-    `api://${environment.azure.clientId}/access_as_user`,
+    environment.azure.apiScope,
   ]);
 
   return {
-    interactionType: InteractionType.Redirect, // Si el token expira, redirige al login silenciosamente
+    interactionType: InteractionType.Redirect, // Si hace falta interacción, redirige al inicio de sesión
     protectedResourceMap,
   };
 }
