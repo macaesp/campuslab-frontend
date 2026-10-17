@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve --port 4200",
     "build": "ng build",
+    "build:cloud": "ng build --configuration production,cloud && node scripts/prepare-static.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:frontend-campuslab": "node dist/frontend-campuslab/server/server.mjs"
