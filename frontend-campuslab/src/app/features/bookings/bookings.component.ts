@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RoleService } from '../../core/auth/role.service';
@@ -24,6 +24,7 @@ export class BookingsComponent implements OnInit {
   private bookingsSvc = inject(BookingsService);
   private catalogSvc = inject(CatalogService);
   private fb = inject(FormBuilder);
+  private cdr = inject(ChangeDetectorRef);
   roleService = inject(RoleService);
 
   bookings: Booking[] = [];
@@ -45,9 +46,17 @@ export class BookingsComponent implements OnInit {
     this.refresh();
     // GET /api/catalog/resources -> puebla los selects de laboratorio/equipo del formulario
     this.catalogSvc.list().subscribe({
+<<<<<<< Updated upstream
+=======
+      error: () => {
+        this.errorMessage = 'No se pudieron cargar los recursos del catálogo.';
+        this.cdr.markForCheck();
+      },
+>>>>>>> Stashed changes
       next: (r) => {
         this.labs = r.filter((x) => x.tipo === 'LABORATORIO');
         this.equipos = r.filter((x) => x.tipo === 'EQUIPO');
+        this.cdr.markForCheck();
       },
     });
   }
@@ -56,8 +65,21 @@ export class BookingsComponent implements OnInit {
     this.loading = true;
     const status = this.statusFilter === 'todas' ? undefined : this.statusFilter;
     this.bookingsSvc.list({ status }).subscribe({
+<<<<<<< Updated upstream
       next: (b) => { this.bookings = b; this.loading = false; },
       error: () => { this.loading = false; },
+=======
+      next: (b) => {
+        this.bookings = b;
+        this.loading = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.loading = false;
+        this.errorMessage = 'No se pudieron cargar las reservas. Revisa la conexión y los permisos de tu cuenta.';
+        this.cdr.markForCheck();
+      },
+>>>>>>> Stashed changes
     });
   }
 
@@ -75,8 +97,16 @@ export class BookingsComponent implements OnInit {
   changeStatus(booking: Booking, next: BookingStatus): void {
     // PUT /api/bookings/{id}/status
     this.bookingsSvc.updateStatus(booking.id, next).subscribe({
+<<<<<<< Updated upstream
+=======
+      error: (err) => {
+        this.errorMessage = err.status === 409 ? 'No hay stock disponible o el cambio de estado no está permitido.' : 'No se pudo confirmar el cambio. Reintenta la misma operación.';
+        this.cdr.markForCheck();
+      },
+>>>>>>> Stashed changes
       next: (updated) => {
         this.bookings = this.bookings.map((b) => (b.id === updated.id ? updated : b));
+        this.cdr.markForCheck();
       },
     });
   }
@@ -94,10 +124,18 @@ export class BookingsComponent implements OnInit {
         horaFin: v.horaFin!,
       })
       .subscribe({
+<<<<<<< Updated upstream
+=======
+        error: () => {
+          this.errorMessage = 'No se pudo crear la reserva. Revisa los datos y la conexión.';
+          this.cdr.markForCheck();
+        },
+>>>>>>> Stashed changes
         next: (created) => {
           this.bookings = [created, ...this.bookings];
           this.form.reset();
           this.showForm = false;
+          this.cdr.markForCheck();
         },
       });
   }
