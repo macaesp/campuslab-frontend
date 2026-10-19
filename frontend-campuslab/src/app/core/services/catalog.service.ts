@@ -1,30 +1,35 @@
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { CatalogResource } from '../models/resource.model';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { CatalogResource, ResourceType } from '../models/resource.model';
+import { environment } from '../../../environments/environment';
+
+interface ApiResource {
+  id: number; name: string; type: ResourceType; availableStock: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class CatalogService {
-  private resources: CatalogResource[] = [
-    { id: 'LAB-REDES', tipo: 'LABORATORIO', nombre: 'Laboratorio de Redes', sede: 'Sede Central', capacidad: 30 },
-    { id: 'LAB-ELECT', tipo: 'LABORATORIO', nombre: 'Laboratorio de Electrónica', sede: 'Sede Central', capacidad: 24 },
-    { id: 'EQ-001', tipo: 'EQUIPO', nombre: 'Osciloscopio Digital', sede: 'Sede Central', estado: 'DISPONIBLE' },
-    { id: 'INS-001', tipo: 'INSUMO', nombre: 'Kit Arduino', sede: 'Sede Central', stock: 12, umbral: 10, unidad: 'unidades' },
-  ];
-
+  private http = inject(HttpClient);
+  private url = `${environment.apiUrl}/api/catalog/resources`;
+  private fromApi(r: ApiResource): CatalogResource {
+    return { id: String(r.id), nombre: r.name, tipo: r.type, sede: '',
+      capacidad: r.type === 'LABORATORIO' ? r.availableStock : undefined,
+      stock: r.availableStock,
+      estado: r.availableStock > 0 ? 'DISPONIBLE' : 'EN_USO' };
+  }
+  private toApi(r: Partial<CatalogResource>) {
+    return { name: r.nombre, type: r.tipo,
+      availableStock: r.tipo === 'LABORATORIO' ? (r.capacidad ?? 0) : (r.stock ?? (r.estado === 'DISPONIBLE' ? 1 : 0)) };
+  }
   list(): Observable<CatalogResource[]> {
-    return of(this.resources);
+    return this.http.get<ApiResource[]>(this.url).pipe(map(rows => rows.map(r => this.fromApi(r))));
   }
-
   create(resource: Partial<CatalogResource>): Observable<CatalogResource> {
-    const saved = { ...resource, id: `REC-${String(this.resources.length + 1).padStart(3, '0')}` } as CatalogResource;
-    this.resources = [saved, ...this.resources];
-    return of(saved);
+    return this.http.post<ApiResource>(this.url, this.toApi(resource)).pipe(map(r => this.fromApi(r)));
   }
-
   update(id: string, resource: Partial<CatalogResource>): Observable<CatalogResource> {
-    const current = this.resources.find((item) => item.id === id)!;
-    const saved = { ...current, ...resource } as CatalogResource;
-    this.resources = this.resources.map((item) => item.id === id ? saved : item);
-    return of(saved);
+    return this.http.put<ApiResource>(`${this.url}/${encodeURIComponent(id)}`, this.toApi(resource))
+      .pipe(map(r => this.fromApi(r)));
   }
 }

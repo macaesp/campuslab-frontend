@@ -31,6 +31,7 @@ export class BookingsComponent implements OnInit {
   labs: CatalogResource[] = [];
   equipos: CatalogResource[] = [];
   loading = true;
+  errorMessage = '';
   showForm = false;
   statusFilter: BookingStatus | 'todas' = 'todas';
 
@@ -46,13 +47,6 @@ export class BookingsComponent implements OnInit {
     this.refresh();
     // GET /api/catalog/resources -> puebla los selects de laboratorio/equipo del formulario
     this.catalogSvc.list().subscribe({
-<<<<<<< Updated upstream
-=======
-      error: () => {
-        this.errorMessage = 'No se pudieron cargar los recursos del catálogo.';
-        this.cdr.markForCheck();
-      },
->>>>>>> Stashed changes
       next: (r) => {
         this.labs = r.filter((x) => x.tipo === 'LABORATORIO');
         this.equipos = r.filter((x) => x.tipo === 'EQUIPO');
@@ -62,24 +56,12 @@ export class BookingsComponent implements OnInit {
   }
 
   refresh(): void {
+    this.errorMessage = '';
     this.loading = true;
     const status = this.statusFilter === 'todas' ? undefined : this.statusFilter;
     this.bookingsSvc.list({ status }).subscribe({
-<<<<<<< Updated upstream
-      next: (b) => { this.bookings = b; this.loading = false; },
-      error: () => { this.loading = false; },
-=======
-      next: (b) => {
-        this.bookings = b;
-        this.loading = false;
-        this.cdr.markForCheck();
-      },
-      error: () => {
-        this.loading = false;
-        this.errorMessage = 'No se pudieron cargar las reservas. Revisa la conexión y los permisos de tu cuenta.';
-        this.cdr.markForCheck();
-      },
->>>>>>> Stashed changes
+      next: (b) => { this.bookings = b; this.loading = false; this.cdr.markForCheck(); },
+      error: () => { this.loading = false; this.errorMessage = 'No se pudieron cargar las reservas del servidor.'; this.cdr.markForCheck(); },
     });
   }
 
@@ -95,23 +77,20 @@ export class BookingsComponent implements OnInit {
   }
 
   changeStatus(booking: Booking, next: BookingStatus): void {
+    this.errorMessage = '';
     // PUT /api/bookings/{id}/status
     this.bookingsSvc.updateStatus(booking.id, next).subscribe({
-<<<<<<< Updated upstream
-=======
-      error: (err) => {
-        this.errorMessage = err.status === 409 ? 'No hay stock disponible o el cambio de estado no está permitido.' : 'No se pudo confirmar el cambio. Reintenta la misma operación.';
-        this.cdr.markForCheck();
-      },
->>>>>>> Stashed changes
       next: (updated) => {
-        this.bookings = this.bookings.map((b) => (b.id === updated.id ? updated : b));
+        this.bookings = this.bookings.map((b) => (b.id === updated.id ? updated : b))
+          .filter((b) => this.statusFilter === 'todas' || b.status === this.statusFilter);
         this.cdr.markForCheck();
       },
+      error: () => { this.errorMessage = 'No se pudo confirmar el cambio de estado. Recarga las reservas para comprobar su estado actual.'; this.cdr.markForCheck(); },
     });
   }
 
   submitBooking(): void {
+    this.errorMessage = '';
     if (this.form.invalid) return;
     const v = this.form.getRawValue();
     // POST /api/bookings — el stock/cupo del recurso baja cuando el técnico/admin aprueba, no al crear.
@@ -124,19 +103,13 @@ export class BookingsComponent implements OnInit {
         horaFin: v.horaFin!,
       })
       .subscribe({
-<<<<<<< Updated upstream
-=======
-        error: () => {
-          this.errorMessage = 'No se pudo crear la reserva. Revisa los datos y la conexión.';
-          this.cdr.markForCheck();
-        },
->>>>>>> Stashed changes
         next: (created) => {
           this.bookings = [created, ...this.bookings];
           this.form.reset();
           this.showForm = false;
           this.cdr.markForCheck();
         },
+        error: () => { this.errorMessage = 'No se pudo crear la reserva. Comprueba tu sesión y el recurso seleccionado.'; this.cdr.markForCheck(); },
       });
   }
 }

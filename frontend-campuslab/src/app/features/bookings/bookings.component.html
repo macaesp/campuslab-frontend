@@ -1,5 +1,6 @@
 <h1 class="heading" style="font-size:22px; margin-bottom:20px;">Reservas</h1>
 
+<p *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
 <div class="panel">
   <div class="panel-head-row">
     <select [(ngModel)]="statusFilter" (ngModelChange)="refresh()" class="select-input">
@@ -43,7 +44,7 @@
       </tr>
     </tbody>
   </table>
-  <ng-template #loadingTpl><p class="text-muted">Cargando reservas (GET /api/bookings)…</p></ng-template>
+  <ng-template #loadingTpl><p class="text-muted">Cargando</p></ng-template>
   <p *ngIf="!loading && bookings.length === 0" class="text-muted">No hay reservas con ese filtro.</p>
 </div>
 

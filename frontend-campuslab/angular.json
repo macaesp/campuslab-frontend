@@ -51,18 +51,6 @@
               ],
               "outputHashing": "all"
             },
-            "cloud": {
-              "outputMode": "static",
-              "optimization": {
-                "fonts": false
-              },
-              "fileReplacements": [
-                {
-                  "replace": "src/app/app.routes.server.ts",
-                  "with": "src/app/app.routes.cloud.ts"
-                }
-              ]
-            },
             "development": {
               "optimization": false,
               "extractLicenses": false,

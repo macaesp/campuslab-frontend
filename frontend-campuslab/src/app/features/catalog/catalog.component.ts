@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RoleService } from '../../core/auth/role.service';
@@ -16,6 +16,7 @@ import { CatalogResource, ResourceType } from '../../core/models/resource.model'
 export class CatalogComponent implements OnInit {
   private catalogSvc = inject(CatalogService);
   private fb = inject(FormBuilder);
+  private cdr = inject(ChangeDetectorRef);
   roleService = inject(RoleService);
 
   resources: CatalogResource[] = [];
@@ -44,8 +45,8 @@ export class CatalogComponent implements OnInit {
     this.loading = true;
     // GET /api/catalog/resources
     this.catalogSvc.list().subscribe({
-      next: (r) => { this.resources = r; this.loading = false; },
-      error: () => { this.loading = false; },
+      next: (r) => { this.resources = r; this.loading = false; this.cdr.markForCheck(); },
+      error: () => { this.loading = false; this.cdr.markForCheck(); },
     });
   }
 
@@ -99,6 +100,8 @@ export class CatalogComponent implements OnInit {
           ? this.resources.map((r) => (r.id === saved.id ? saved : r))
           : [saved, ...this.resources];
         this.showForm = false;
+        this.editingId = null;
+        this.cdr.markForCheck();
       },
     });
   }

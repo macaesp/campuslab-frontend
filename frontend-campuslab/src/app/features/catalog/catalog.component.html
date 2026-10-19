@@ -10,7 +10,7 @@
 </div>
 
 <div class="panel">
-  <p *ngIf="loading" class="text-muted">Cargando catálogo (GET /api/catalog/resources)…</p>
+  <p *ngIf="loading" class="text-muted">Cargando</p>
 
   <table class="table" *ngIf="!loading && tab === 'LABORATORIO'">
     <thead><tr><th>Nombre</th><th>Sede</th><th>Capacidad</th><th *ngIf="canEdit"></th></tr></thead>
