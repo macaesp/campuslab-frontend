@@ -12,12 +12,17 @@
     <p *ngIf="roleService.isAuditor()">Consulta el resumen de actividad de CampusLab.</p>
   </div>
 
+<div class="panel" *ngIf="!roleService.hasAnyRole(['Admin', 'OperadorDominio', 'ClienteDominio', 'Auditor'])">
+  <h3>No hay un rol disponible para esta sesión</h3>
+  <p>Verifica que tu cuenta tenga un rol de CampusLab asignado en Microsoft Entra y vuelve a iniciar sesión.</p>
+</div>
+
 <ng-container *ngIf="roleService.isAdmin()">
   <div class="stat-row" *ngIf="kpis as k">
-    <div class="stat-card panel"><div class="stat-value">{{ k.labsActivos }}</div><div class="stat-label">Labs activos</div></div>
-    <div class="stat-card panel"><div class="stat-value">{{ k.ocupacionPromedio }}%</div><div class="stat-label">Ocupación promedio</div></div>
-    <div class="stat-card panel"><div class="stat-value">{{ k.tiempoCicloPromedioMin }} min</div><div class="stat-label">Tiempo de ciclo</div></div>
-    <div class="stat-card panel"><div class="stat-value">{{ k.reservasHoy }}</div><div class="stat-label">Reservas hoy</div></div>
+    <div class="stat-card panel"><div class="stat-value">{{ k.labsActivos }}</div><div class="stat-label">Labs con uso abierto</div></div>
+    <div class="stat-card panel"><div class="stat-value">{{ k.ocupacionPromedio === null ? 'Sin datos' : k.ocupacionPromedio + '%' }}</div><div class="stat-label">Ocupación temporal · 24 h</div></div>
+    <div class="stat-card panel"><div class="stat-value">{{ k.tiempoCicloPromedioMin === null ? 'Sin devoluciones' : k.tiempoCicloPromedioMin + ' min' }}</div><div class="stat-label">Ciclo solicitud–devolución</div></div>
+    <div class="stat-card panel"><div class="stat-value">{{ k.reservasHoy }}</div><div class="stat-label">Solicitudes · últimas 24 h</div></div>
   </div>
 
   <cl-occupancy-grid [labs]="labs" [bookings]="bookings"></cl-occupancy-grid>
@@ -56,7 +61,7 @@
         <div class="ticket-content"><div class="ticket-title">{{ b.labNombre }}</div><div class="ticket-sub">{{ b.resourceNombre || 'Preparación de laboratorio' }}</div><div class="ticket-meta">▣ {{ b.fecha }} &nbsp; ◷ {{ b.horaInicio }}–{{ b.horaFin }} &nbsp; ⌖ {{ b.sede }}</div></div>
         <cl-status-badge [status]="b.status"></cl-status-badge>
         <div class="ticket-requester"><small>Solicitante</small><strong>{{ b.solicitanteNombre }}</strong><span>Estudiante</span></div>
-        <a class="ticket-action" routerLink="/bookings">Ver detalle</a>
+        <button class="ticket-action" (click)="details.show(b)">Ver detalle</button>
       </article>
       <p *ngIf="ticketsPreparacion.length === 0" class="text-muted">No hay tickets pendientes.</p>
     </div>
@@ -72,6 +77,7 @@
         <div class="ticket-sub">{{ b.fecha }} · {{ b.horaInicio }}–{{ b.horaFin }}</div>
       </div>
       <cl-status-badge [status]="b.status"></cl-status-badge>
+      <button class="link-btn" (click)="details.show(b)">Ver detalle</button>
     </div>
     <p *ngIf="proximasReservas.length === 0" class="text-muted">Aún no tienes reservas. Ve a Reservas para solicitar un laboratorio.</p>
   </div>
@@ -82,3 +88,15 @@
   <p class="panel-sub">Ve a Auditoría para el timeline completo con filtros.</p>
 </div>
 </section>
+<section class="panel" *ngIf="roleService.isAdmin()">
+  <h3>Reservas</h3>
+  <p *ngIf="loading">Cargando reservas…</p>
+  <p *ngIf="!loading && !bookings.length">No hay reservas disponibles.</p>
+  <div class="ticket" *ngFor="let b of bookings">
+    <div><strong>{{ b.labNombre }}</strong><p>{{ b.solicitanteNombre }} · {{ b.fecha }} · {{ b.horaInicio }}–{{ b.horaFin }}</p></div>
+    <cl-status-badge [status]="b.status" />
+    <button class="link-btn" (click)="details.show(b)">Ver detalle</button>
+  </div>
+</section>
+<p *ngIf="errorMessage" role="alert">{{ errorMessage }}</p>
+<cl-booking-detail-dialog #details />

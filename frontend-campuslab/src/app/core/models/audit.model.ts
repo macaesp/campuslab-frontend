@@ -3,9 +3,10 @@ export interface AuditEvent {
   timestamp: string;
   actorNombre: string;
   actorRol: string;
-  accion: 'SOLICITO' | 'APROBO' | 'ENTREGO' | 'RECIBIO' | 'CANCELO' | 'DEVOLVIO';
+  accion: 'SOLICITO' | 'APROBO' | 'PREPARO' | 'ENTREGO' | 'RECIBIO' | 'CANCELO' | 'DEVOLVIO' | 'ELIMINO';
   objeto: string;
   sede: string;
+  motivo?: string;
 }
 
 export interface AuditFilter {
@@ -17,12 +18,24 @@ export interface AuditFilter {
 
 export interface KpiSummary {
   reservasHoy: number;
-  ocupacionPromedio: number;   // %
-  tiempoCicloPromedioMin: number;
+  ocupacionPromedio: number | null;
+  tiempoCicloPromedioMin: number | null;
   labsActivos: number;
+  ciclosCompletados: number;
+  catalogAvailable: boolean;
+  periodStart: string;
+  periodEnd: string;
+  coverageStartedAt: string | null;
+  lastEventAt: string | null;
 }
 
 export interface TopResource {
+  resourceId: number;
   nombre: string;
   usos: number;
+}
+
+export interface HourlyBookings {
+  hora: string;
+  reservas: number;
 }

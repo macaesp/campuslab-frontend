@@ -13,6 +13,13 @@ export type BookingStatus =
   | 'CANCELADA';
 
 export interface Booking {
+  quantity?: number;
+  trackingCode?: string;
+  cancellationReason?: string;
+  approvedByName?: string;
+  approvedByRole?: string;
+  startTime?: string;
+  endTime?: string;
   id: string;
   labId: string;
   labNombre: string;
@@ -29,11 +36,21 @@ export interface Booking {
 }
 
 export interface CreateBookingRequest {
+  quantity?: number;
   labId: string;
   resourceId?: string;
   fecha: string;
   horaInicio: string;
   horaFin: string;
+}
+
+export interface ResourceAvailability {
+  resourceId: number;
+  name: string;
+  type: 'LABORATORIO' | 'EQUIPO' | 'INSUMO';
+  totalQuantity: number;
+  availableQuantity: number;
+  available: boolean;
 }
 
 /** Transiciones válidas desde cada estado (misma regla que debe validar el backend). */
@@ -54,3 +71,11 @@ export const STATUS_LABEL: Record<BookingStatus, string> = {
   DEVUELTA: 'Devuelta',
   CANCELADA: 'Cancelada',
 };
+
+/** Active requests first, oldest creation first in both groups. Reservation date is not priority. */
+export function sortBookings(bookings: Booking[]): Booking[] {
+  const closed = (b: Booking) => Number(b.status === 'DEVUELTA' || b.status === 'CANCELADA');
+  return [...bookings].sort((a, b) => closed(a) - closed(b)
+    || (a.createdAt || '\uffff').localeCompare(b.createdAt || '\uffff')
+    || a.id.localeCompare(b.id, undefined, { numeric: true }));
+}

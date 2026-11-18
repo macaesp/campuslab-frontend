@@ -12,3 +12,48 @@
 
 body, button, input, select, textarea { font-family: 'DM Sans', Arial, sans-serif; }
 h1, h2, h3, .heading, .brand { font-family: 'Space Grotesk', 'DM Sans', Arial, sans-serif; }
+
+/* Shared layout rules: keep overflow inside charts and adapt data tables to readable mobile cards. */
+body { min-width:320px; }
+body .panel, body .stat-card, body .two-col > * { min-width:0; }
+body .panel-head-row { gap:12px; flex-wrap:wrap; }
+body .filters { display:flex; flex-wrap:wrap; gap:10px; }
+body .filters > * { max-width:100%; }
+body .responsive-table { width:100%; min-width:0; table-layout:fixed; }
+body .responsive-table th, body .responsive-table td { overflow-wrap:anywhere; white-space:normal; padding:12px 8px; }
+body .panel-overlay { padding:16px; }
+body .panel-overlay .panel-modal.panel { width:min(100%,480px); max-height:calc(100dvh - 32px); overflow-y:auto; margin:0; }
+body .panel-modal .modal-actions { flex-wrap:wrap; gap:10px; }
+.form-error { color:#a52b24; background:#fff0ee; padding:10px 12px; border-radius:8px; font-size:13px; }
+.availability-note { font-size:12px; color:var(--text-muted); margin:12px 0; min-height:18px; }
+.check-label { display:flex; gap:8px; align-items:center; }
+.check-label input { width:18px; height:18px; }
+@media(max-width:1200px) {
+  body .responsive-table, body .responsive-table tbody { display:block; min-width:0; width:100%; }
+  body .responsive-table thead { display:none; }
+  body .responsive-table tr { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 14px; padding:14px 0; border-bottom:1px solid var(--border); }
+  body .responsive-table td { display:block; padding:3px 0; border:0; text-align:left; min-width:0; }
+  body .responsive-table td::before { content:attr(data-label); display:block; color:var(--text-muted); font-size:11px; font-weight:600; margin-bottom:5px; }
+  body .responsive-table td[data-label='Acciones'], body .responsive-table td[data-label='Solicitante'], body .responsive-table td[data-label='Recurso'], body .responsive-table td[data-label='Acción'] { grid-column:1 / -1; }
+  body .responsive-table .link-btn { min-height:40px; }
+}
+@media(min-width:761px) and (max-width:1200px) {
+  body .responsive-table tbody { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+  body .responsive-table tr { border:1px solid var(--border); border-radius:10px; padding:14px; }
+}
+@media(max-width:760px) {
+  body .panel { padding:16px; }
+  body .field-input, body .select-input, body input, body select { font-size:16px; min-height:44px; }
+  body .panel-modal .field-row { grid-template-columns:1fr; }
+  body .panel-modal .modal-actions > button { flex:1; min-height:44px; }
+  body .tabs { width:100%; overflow-x:auto; }
+  body .tab { flex-shrink:0; min-height:44px; }
+  body .dashboard-page .two-col, body .dashboard-page .operator-metrics, body .stat-row { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  body .dashboard-topbar, body .operator-board-heading, body .dashboard-title, body .ticket { flex-wrap:wrap; gap:12px; }
+  body .dashboard-search { width:100%; min-width:0; }
+  body .dashboard-tools { flex-wrap:wrap; }
+  body .bar-label { width:100px; overflow-wrap:anywhere; }
+}
+@media(max-width:420px) {
+  body .dashboard-page .two-col, body .dashboard-page .operator-metrics, body .stat-row { grid-template-columns:1fr; }
+}

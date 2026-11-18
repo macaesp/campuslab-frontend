@@ -4,13 +4,13 @@ import { roleGuard } from './core/auth/role.guard';
 import { ShellComponent } from './layout/shell/shell.component';
 
 export const routes: Routes = [
+  { path: '', pathMatch: 'full', loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent) },
   { path: 'login', loadComponent: () => import('./features/login/login.component').then((m) => m.LoginComponent) },
   {
     path: '',
     component: ShellComponent,
     canActivate: [MsalGuard],
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       { path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent) },
       { path: 'bookings', canActivate: [roleGuard], data: { roles: ['Admin', 'OperadorDominio', 'ClienteDominio'] }, loadComponent: () => import('./features/bookings/bookings.component').then((m) => m.BookingsComponent) },
       { path: 'catalog', canActivate: [roleGuard], data: { roles: ['Admin', 'OperadorDominio'] }, loadComponent: () => import('./features/catalog/catalog.component').then((m) => m.CatalogComponent) },

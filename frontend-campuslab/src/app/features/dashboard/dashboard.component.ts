@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { BookingDetailDialogComponent } from '../../shared/booking-detail/booking-detail-dialog.component';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { RoleService } from '../../core/auth/role.service';
@@ -21,42 +22,45 @@ import { OccupancyGridComponent } from '../../shared/occupancy-grid/occupancy-gr
 @Component({
   selector: 'cl-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, StatusBadgeComponent, OccupancyGridComponent],
+  imports: [CommonModule, RouterLink, StatusBadgeComponent, OccupancyGridComponent, BookingDetailDialogComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
+  errorMessage = '';
   private bookingsSvc = inject(BookingsService);
   private catalogSvc = inject(CatalogService);
   private reportSvc = inject(ReportService);
   roleService = inject(RoleService);
 
-  kpis: KpiSummary | null = { reservasHoy: 18, ocupacionPromedio: 72, tiempoCicloPromedioMin: 42, labsActivos: 16 };
+  kpis: KpiSummary | null = null;
   bookings: Booking[] = [];
-  resources: CatalogResource[] = [
-    { id: 'LAB-REDES', tipo: 'LABORATORIO', nombre: 'Laboratorio de Redes', sede: 'Sede Central', capacidad: 30 },
-    { id: 'LAB-ELECT', tipo: 'LABORATORIO', nombre: 'Laboratorio de Electrónica', sede: 'Sede Central', capacidad: 24 },
-    { id: 'EQ-001', tipo: 'EQUIPO', nombre: 'Osciloscopio Digital', sede: 'Sede Central', estado: 'NO_DEVUELTO' },
-    { id: 'INS-001', tipo: 'INSUMO', nombre: 'Kit Arduino', sede: 'Sede Central', stock: 8, umbral: 10, unidad: 'unidades' }
-  ];
+  resources: CatalogResource[] = [];
   loading = true;
 
   ngOnInit(): void {
-    // Evita que los datos de demostración cambien la vista durante el render inicial.
+    // Diferimos la carga hasta después del render inicial.
     queueMicrotask(() => this.loadDashboard());
   }
 
   private loadDashboard(): void {
     this.bookingsSvc.list().subscribe({
-      next: (b) => { this.bookings = b; this.loading = false; },
-      error: () => { this.loading = false; },
+      next: (b) => { this.bookings = b; this.loading = false; this.cdr.markForCheck(); },
+      error: () => { this.loading = false; this.errorMessage = 'No se pudieron cargar las reservas.'; this.cdr.markForCheck(); },
     });
 
     if (this.roleService.isAdmin()) {
       // GET /api/report/kpis?range=last24h
-      this.reportSvc.getKpis('last24h').subscribe({ next: (k) => (this.kpis = k), error: () => (this.kpis = null) });
+      this.reportSvc.getKpis('last24h').subscribe({
+        next: (k) => { this.kpis = k; this.cdr.markForCheck(); },
+        error: () => { this.kpis = null; this.cdr.markForCheck(); },
+      });
       // GET /api/catalog/resources -> alimenta la grilla de ocupación y las alertas
-      this.catalogSvc.list().subscribe({ next: (r) => (this.resources = r) });
+      this.catalogSvc.list().subscribe({
+        next: (r) => { this.resources = r; this.cdr.markForCheck(); },
+        error: () => { this.resources = []; this.cdr.markForCheck(); },
+      });
     }
   }
 

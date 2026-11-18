@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuditService } from '../../core/services/audit.service';
@@ -14,22 +14,33 @@ import { AuditEvent } from '../../core/models/audit.model';
 })
 export class AuditComponent implements OnInit {
   private auditSvc = inject(AuditService);
+  private cdr = inject(ChangeDetectorRef);
 
   events: AuditEvent[] = [];
   loading = true;
+  error = '';
+  page = 0;
+  totalPages = 0;
+  totalElements = 0;
 
   filtroUsuario = '';
   filtroDesde = '';
   filtroHasta = '';
   filtroTipo = '';
 
+  actionLabel(action: AuditEvent['accion']): string {
+    return ({ SOLICITO: 'Solicitó', APROBO: 'Aprobó', PREPARO: 'Preparó', ENTREGO: 'Entregó',
+      RECIBIO: 'Recibió', CANCELO: 'Canceló', DEVOLVIO: 'Devolvió', ELIMINO: 'Eliminó' })[action];
+  }
+
   ngOnInit(): void {
-    // La API usa datos de respaldo mientras el servicio de auditoría se implementa.
     // Diferir la primera búsqueda evita cambiar la vista durante su verificación inicial.
     queueMicrotask(() => this.buscar());
   }
 
-  buscar(): void {
+  buscar(page = 0): void {
+    this.page = page;
+    this.error = '';
     this.loading = true;
     this.auditSvc
       .list({
@@ -37,10 +48,16 @@ export class AuditComponent implements OnInit {
         desde: this.filtroDesde || undefined,
         hasta: this.filtroHasta || undefined,
         tipoEvento: this.filtroTipo || undefined,
-      })
+      }, page)
       .subscribe({
-        next: (e) => { this.events = e; this.loading = false; },
-        error: () => { this.loading = false; },
+        next: (result) => {
+          this.events = result.events;
+          this.totalPages = result.totalPages;
+          this.totalElements = result.totalElements;
+          this.loading = false;
+          this.cdr.markForCheck();
+        },
+        error: () => { this.events = []; this.error = 'No se pudo cargar el historial. Intenta nuevamente.'; this.loading = false; this.cdr.markForCheck(); },
       });
   }
 }

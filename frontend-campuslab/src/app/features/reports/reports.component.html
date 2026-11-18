@@ -4,12 +4,29 @@
   <p>Indicadores procesados desde los eventos de reserva.</p>
 </section>
 
+<p *ngIf="loading" class="text-muted">Cargando indicadores…</p>
+<div *ngIf="error" role="alert"><p>{{ error }}</p><button type="button" (click)="load()">Reintentar</button></div>
+
 <div class="stat-row" *ngIf="kpis as k">
-  <article class="stat-card panel"><strong>{{ k.reservasHoy }}</strong><span>Reservas hoy</span></article>
-  <article class="stat-card panel"><strong>{{ k.ocupacionPromedio }}%</strong><span>Ocupación promedio</span></article>
-  <article class="stat-card panel"><strong>{{ k.tiempoCicloPromedioMin }} min</strong><span>Tiempo de ciclo</span></article>
-  <article class="stat-card panel"><strong>{{ k.labsActivos }}</strong><span>Laboratorios activos</span></article>
+  <article class="stat-card panel"><strong>{{ k.reservasHoy }}</strong><span>Solicitudes · últimas 24 h</span></article>
+  <article class="stat-card panel" title="Tiempo real en uso, sin duplicar solapamientos, dividido por 24 horas y el número actual de laboratorios. No mide cupos ni horario de apertura."><strong>{{ k.ocupacionPromedio === null ? 'Sin datos' : (k.ocupacionPromedio | number:'1.0-2') + '%' }}</strong><span>Ocupación temporal · 24 h</span></article>
+  <article class="stat-card panel" title="Promedio desde la solicitud hasta la primera devolución de cada reserva, entre las devoluciones del período con solicitud conocida."><strong>{{ k.tiempoCicloPromedioMin === null ? 'Sin devoluciones' : (k.tiempoCicloPromedioMin | number:'1.0-2') + ' min' }}</strong><span>Ciclo solicitud–devolución</span></article>
+  <article class="stat-card panel"><strong>{{ k.labsActivos }}</strong><span>Laboratorios con uso abierto</span></article>
 </div>
+
+<p *ngIf="kpis as k" class="text-muted">Datos recibidos desde {{ k.coverageStartedAt ? (k.coverageStartedAt | date:'dd/MM/yyyy HH:mm') : 'el inicio del servicio, sin eventos aún' }}. La actualización es asíncrona.</p>
+<p *ngIf="kpis && !kpis.catalogAvailable" role="status">Catálogo no está disponible. La ocupación temporal no puede calcularse.</p>
+
+<section class="panel" *ngIf="hourly.length">
+  <h3>Solicitudes por hora · últimas 24 h</h3>
+  <div class="hour-chart">
+    <div *ngFor="let item of hourly" class="hour-column" [title]="(item.hora | date:'dd/MM HH:mm') + ': ' + item.reservas + ' solicitudes'">
+      <span>{{ item.reservas }}</span>
+      <div class="hour-track"><div class="bar-fill" [style.height.%]="(item.reservas / maxReservasHora) * 100"></div></div>
+      <small>{{ item.hora | date:'HH:mm' }}</small>
+    </div>
+  </div>
+</section>
 
 <section class="panel">
   <h3>Recursos más utilizados</h3>
@@ -19,5 +36,5 @@
     <div class="bar-track"><div class="bar-fill" [style.width.%]="(item.usos / maxUsos) * 100"></div></div>
     <span>{{ item.usos }} usos</span>
   </div>
-  <p *ngIf="!loading && topResources.length === 0" class="text-muted">No hay datos disponibles.</p>
+  <p *ngIf="!loading && !error && topResources.length === 0" class="text-muted">No hay entregas registradas en los últimos siete días.</p>
 </section>

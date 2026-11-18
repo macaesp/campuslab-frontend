@@ -5,6 +5,11 @@ import { CatalogResource } from '../../core/models/resource.model';
 
 const HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
 
+/** Las fechas de las reservas son días del calendario local, no fechas UTC. */
+export function localCalendarDate(date = new Date()): string {
+  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
+}
+
 /**
  * Grilla de ocupación (labs x hora) para el día indicado.
  * Se deriva de las reservas ya cargadas (bookings), no de un mock aparte:
@@ -20,7 +25,7 @@ const HOURS = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
 export class OccupancyGridComponent {
   @Input({ required: true }) labs: CatalogResource[] = [];
   @Input({ required: true }) bookings: Booking[] = [];
-  @Input() fecha: string = new Date().toISOString().slice(0, 10);
+  @Input() fecha: string = localCalendarDate();
 
   hours = HOURS;
   hoverCell: { lab: string; hour: number; booking: Booking } | null = null;

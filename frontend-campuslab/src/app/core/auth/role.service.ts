@@ -27,10 +27,10 @@ export class RoleService {
     const claims = account?.idTokenClaims as { roles?: AppRole[] } | undefined;
     const roles = claims?.roles ?? [];
 
-    // Permite revisar todas las vistas hasta que Entra ID entregue los app roles.
-    // En producción siempre prevalece el rol real incluido en el token.
-    if (!environment.production) {
-      return [this.getDevelopmentRole() ?? roles[0] ?? 'Admin'];
+    // La previsualización es optativa; normalmente siempre se usan los roles reales.
+    if (!environment.production && environment.allowRolePreview) {
+      const preview = this.getDevelopmentRole();
+      if (preview) return [preview];
     }
 
     return roles;
@@ -38,7 +38,7 @@ export class RoleService {
 
   getDevelopmentRole(): AppRole | null {
     const storage = this.storage;
-    if (environment.production || !storage) return null;
+    if (environment.production || !environment.allowRolePreview || !storage) return null;
     const role = storage.getItem(DEVELOPMENT_ROLE_KEY) as AppRole | null;
     return role && ['Admin', 'OperadorDominio', 'ClienteDominio', 'Auditor'].includes(role)
       ? role
@@ -47,7 +47,7 @@ export class RoleService {
 
   setDevelopmentRole(role: AppRole): void {
     const storage = this.storage;
-    if (!environment.production && storage) {
+    if (!environment.production && environment.allowRolePreview && storage) {
       storage.setItem(DEVELOPMENT_ROLE_KEY, role);
     }
   }

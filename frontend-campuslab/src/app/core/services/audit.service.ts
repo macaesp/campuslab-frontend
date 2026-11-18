@@ -1,25 +1,41 @@
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
 import { AuditEvent, AuditFilter } from '../models/audit.model';
+import { environment } from '../../../environments/environment';
 
-/**
- * Timeline local de demostración.
- */
+interface ApiEvent {
+  eventId: string; timestamp: string; actorName: string; actorRole: string;
+  reason?: string;
+  action: AuditEvent['accion']; bookingId: number; labName?: string;
+}
+
+export interface AuditPage {
+  events: AuditEvent[];
+  totalPages: number;
+  totalElements: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuditService {
-  private readonly mockEvents: AuditEvent[] = [
-    { id: 'AUD-001', timestamp: '2026-09-11T10:15:00Z', actorNombre: 'Macarena Espinoza', actorRol: 'Cliente', accion: 'SOLICITO', objeto: 'RES-001', sede: 'Sede Central' },
-    { id: 'AUD-002', timestamp: '2026-09-11T11:20:00Z', actorNombre: 'Ignacio Pérez', actorRol: 'Operador', accion: 'APROBO', objeto: 'RES-002', sede: 'Sede Central' },
-    { id: 'AUD-003', timestamp: '2026-09-11T12:00:00Z', actorNombre: 'Ignacio Pérez', actorRol: 'Operador', accion: 'ENTREGO', objeto: 'EQ-014', sede: 'Sede Central' },
-  ];
+  private readonly http = inject(HttpClient);
 
-  list(filter?: AuditFilter): Observable<AuditEvent[]> {
-    const usuario = filter?.usuario?.toLocaleLowerCase() ?? '';
-    return of(this.mockEvents.filter((event) =>
-      (!usuario || event.actorNombre.toLocaleLowerCase().includes(usuario)) &&
-      (!filter?.tipoEvento || event.accion === filter.tipoEvento) &&
-      (!filter?.desde || event.timestamp.slice(0, 10) >= filter.desde) &&
-      (!filter?.hasta || event.timestamp.slice(0, 10) <= filter.hasta),
-    ));
+  list(filter?: AuditFilter, page = 0): Observable<AuditPage> {
+    let params = new HttpParams().set('page', page).set('size', 50);
+    for (const [key, value] of Object.entries(filter ?? {})) {
+      if (value) params = params.set(key, value);
+    }
+    return this.http.get<{ content: ApiEvent[]; totalPages: number; totalElements: number }>(
+      `${environment.apiUrl}/api/audit/events`, { params },
+    ).pipe(map(result => ({
+      events: result.content.map(event => ({
+        id: event.eventId, timestamp: event.timestamp, actorNombre: event.actorName,
+        actorRol: event.actorRole, accion: event.action, objeto: `RES-${event.bookingId}`,
+        sede: event.labName || 'Sin laboratorio registrado',
+        motivo: event.reason,
+      })),
+      totalPages: result.totalPages,
+      totalElements: result.totalElements,
+    })));
   }
 }

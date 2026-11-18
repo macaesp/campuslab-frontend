@@ -52,6 +52,12 @@
               "outputHashing": "all"
             },
             "development": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.development.ts"
+                }
+              ],
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true,
@@ -75,7 +81,8 @@
               "buildTarget": "frontend-campuslab:build:production"
             },
             "development": {
-              "buildTarget": "frontend-campuslab:build:development"
+              "buildTarget": "frontend-campuslab:build:development",
+              "proxyConfig": "proxy.conf.cjs"
             }
           },
           "defaultConfiguration": "development"

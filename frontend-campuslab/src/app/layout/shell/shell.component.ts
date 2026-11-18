@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, viewChild } from '@angular/core';
+import { BookingLookupDialogComponent } from '../../shared/booking-detail/booking-lookup-dialog.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
@@ -25,15 +26,17 @@ const NAV: NavItem[] = [
 @Component({
   selector: 'cl-shell',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, FormsModule, RouterOutlet, RouterLink, RouterLinkActive, BookingLookupDialogComponent],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
 })
 export class ShellComponent {
+  menuOpen = false;
   private msal = inject(MsalService);
   private router = inject(Router);
   roleService = inject(RoleService);
-  readonly isDevelopment = !environment.production;
+  lookup = viewChild.required(BookingLookupDialogComponent);
+  readonly isDevelopment = !environment.production && environment.allowRolePreview;
   selectedRole: AppRole = this.roleService.getRoles()[0];
   readonly roleOptions: AppRole[] = ['Admin', 'OperadorDominio', 'ClienteDominio', 'Auditor'];
 

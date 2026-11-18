@@ -76,6 +76,10 @@ export class App implements OnInit, OnDestroy {
 
         next: (result) => {
 
+          if (result?.account) {
+            this.msalService.instance.setActiveAccount(result.account);
+          }
+
           this.updateLoginStatus();
 
 
@@ -157,6 +161,12 @@ export class App implements OnInit, OnDestroy {
 
 
   private updateLoginStatus(): void {
+
+    const instance = this.msalService.instance;
+    const accounts = instance.getAllAccounts();
+    if (!instance.getActiveAccount() && accounts.length === 1) {
+      instance.setActiveAccount(accounts[0]);
+    }
 
     const hasAccounts =
 

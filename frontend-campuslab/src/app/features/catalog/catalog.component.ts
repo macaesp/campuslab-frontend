@@ -20,6 +20,9 @@ export class CatalogComponent implements OnInit {
 
   resources: CatalogResource[] = [];
   loading = true;
+  errorMessage = '';
+  notice = '';
+  includeArchived = false;
   tab: ResourceType = 'LABORATORIO';
 
   showForm = false;
@@ -29,9 +32,10 @@ export class CatalogComponent implements OnInit {
     tipo: ['LABORATORIO' as ResourceType, Validators.required],
     nombre: ['', Validators.required],
     sede: ['', Validators.required],
-    capacidad: [0],
+    capacidad: [0, [Validators.required, Validators.min(0), Validators.pattern('^[0-9]+$')]],
+    enabled: [true],
     estado: ['DISPONIBLE'],
-    stock: [0],
+    stock: [0, [Validators.required, Validators.min(0), Validators.pattern('^[0-9]+$')]],
     umbral: [0],
     unidad: [''],
   });
@@ -43,9 +47,38 @@ export class CatalogComponent implements OnInit {
   load(): void {
     this.loading = true;
     // GET /api/catalog/resources
+<<<<<<< Updated upstream
     this.catalogSvc.list().subscribe({
       next: (r) => { this.resources = r; this.loading = false; },
       error: () => { this.loading = false; },
+=======
+    this.catalogSvc.list(this.includeArchived).subscribe({
+      next: (r) => { this.resources = r; this.loading = false; this.cdr.markForCheck(); },
+      error: () => { this.loading = false; this.cdr.markForCheck(); },
+>>>>>>> Stashed changes
+    });
+  }
+
+  remove(resource: CatalogResource): void {
+    this.catalogSvc.remove(resource.id).subscribe({
+      next: () => {
+        this.resources = this.includeArchived ? this.resources.map(r => r.id === resource.id ? { ...r, archived: true, enabled: false } : r)
+          : this.resources.filter(r => r.id !== resource.id);
+        this.notice = 'Recurso eliminado del catálogo activo. Puedes restaurarlo con Mostrar archivados.';
+        this.cdr.markForCheck();
+      },
+      error: () => { this.errorMessage = 'No se pudo quitar el recurso.'; this.cdr.markForCheck(); },
+    });
+  }
+
+  restore(resource: CatalogResource): void {
+    this.catalogSvc.restore(resource.id).subscribe({
+      next: saved => {
+        this.resources = this.resources.map(r => r.id === saved.id ? saved : r);
+        this.notice = 'Recurso restaurado y deshabilitado. Revisa sus unidades y habilítalo al editar.';
+        this.cdr.markForCheck();
+      },
+      error: () => { this.errorMessage = 'No se pudo restaurar el recurso.'; this.cdr.markForCheck(); },
     });
   }
 
@@ -62,18 +95,23 @@ export class CatalogComponent implements OnInit {
   }
 
   openCreate(): void {
+    this.errorMessage = '';
+    this.form.controls.tipo.enable();
     this.editingId = null;
-    this.form.reset({ tipo: this.tab, nombre: '', sede: '', capacidad: 0, estado: 'DISPONIBLE', stock: 0, umbral: 0, unidad: '' });
+    this.form.reset({ tipo: this.tab, nombre: '', sede: '', capacidad: 0, enabled: true, estado: 'DISPONIBLE', stock: 0, umbral: 0, unidad: '' });
     this.showForm = true;
   }
 
   openEdit(r: CatalogResource): void {
+    this.errorMessage = '';
     this.editingId = r.id;
     this.form.reset({
       tipo: r.tipo, nombre: r.nombre, sede: r.sede,
       capacidad: r.capacidad ?? 0, estado: r.estado ?? 'DISPONIBLE',
       stock: r.stock ?? 0, umbral: r.umbral ?? 0, unidad: r.unidad ?? '',
+      enabled: r.enabled !== false,
     });
+    this.form.controls.tipo.disable();
     this.showForm = true;
   }
 
@@ -82,9 +120,10 @@ export class CatalogComponent implements OnInit {
     const v = this.form.getRawValue();
     const payload: Partial<CatalogResource> = {
       tipo: v.tipo!, nombre: v.nombre!, sede: v.sede!,
+      enabled: v.enabled ?? true,
       capacidad: v.tipo === 'LABORATORIO' ? Number(v.capacidad) : undefined,
       estado: v.tipo === 'EQUIPO' ? (v.estado as CatalogResource['estado']) : undefined,
-      stock: v.tipo === 'INSUMO' ? Number(v.stock) : undefined,
+      stock: v.tipo !== 'LABORATORIO' ? Number(v.stock) : undefined,
       umbral: v.tipo === 'INSUMO' ? Number(v.umbral) : undefined,
       unidad: v.tipo === 'INSUMO' ? v.unidad! : undefined,
     };
@@ -99,6 +138,10 @@ export class CatalogComponent implements OnInit {
           ? this.resources.map((r) => (r.id === saved.id ? saved : r))
           : [saved, ...this.resources];
         this.showForm = false;
+      },
+      error: error => {
+        this.errorMessage = error.error?.message || 'No se pudo guardar. Revisa nombre, sede y unidades.';
+        this.cdr.markForCheck();
       },
     });
   }

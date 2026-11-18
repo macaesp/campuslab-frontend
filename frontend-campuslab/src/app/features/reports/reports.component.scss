@@ -9,3 +9,9 @@
 .bar-fill { height: 100%; background: var(--accent); border-radius: 4px; }
 .bar-value { width: 30px; text-align: right; }
 .text-muted { color: var(--text-muted); font-size: 13px; }
+.hour-chart { display: flex; gap: 8px; overflow-x: auto; padding: 12px 0; }
+.hour-column { min-width: 42px; flex: 1; text-align: center; font-size: 12px; }
+.hour-track { height: 110px; display: flex; align-items: flex-end; background: var(--surface-alt); margin: 6px 0; }
+.hour-track .bar-fill { width: 100%; min-height: 0; }
+.stat-card strong, .stat-card span { display: block; }
+.stat-card span { margin-top: 6px; }

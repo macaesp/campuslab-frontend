@@ -9,38 +9,47 @@
   <button class="btn-primary" *ngIf="canEdit" (click)="openCreate()">+ Nuevo {{ tab.toLowerCase() }}</button>
 </div>
 
+<p *ngIf="notice" role="status">{{ notice }}</p>
+<p *ngIf="errorMessage && !showForm" class="form-error" role="alert">{{ errorMessage }}</p>
+<label class="check-label" *ngIf="canEdit"><input type="checkbox" [(ngModel)]="includeArchived" (ngModelChange)="load()" /> Mostrar archivados</label>
 <div class="panel">
   <p *ngIf="loading" class="text-muted">Cargando catálogo (GET /api/catalog/resources)…</p>
 
-  <table class="table" *ngIf="!loading && tab === 'LABORATORIO'">
+  <table class="table responsive-table" *ngIf="!loading && tab === 'LABORATORIO'">
     <thead><tr><th>Nombre</th><th>Sede</th><th>Capacidad</th><th *ngIf="canEdit"></th></tr></thead>
     <tbody>
       <tr *ngFor="let r of filtered">
-        <td>{{ r.nombre }}</td><td>{{ r.sede }}</td><td class="mono">{{ r.capacidad }}</td>
-        <td *ngIf="canEdit"><button class="link-btn" (click)="openEdit(r)">Editar</button></td>
+        <td data-label="Nombre">{{ r.nombre }}</td><td data-label="Sede">{{ r.sede || "—" }}</td><td data-label="Capacidad" class="mono">{{ r.capacidad }}</td>
+        <td data-label="Acciones" *ngIf="canEdit"><button class="link-btn" (click)="openEdit(r)">Editar</button>
+          <button *ngIf="!r.archived" class="link-btn danger" [attr.aria-label]="'Eliminar ' + r.nombre" (click)="remove(r)">Eliminar</button>
+          <button *ngIf="r.archived" class="link-btn" [attr.aria-label]="'Restaurar ' + r.nombre" (click)="restore(r)">Restaurar</button></td>
       </tr>
     </tbody>
   </table>
 
-  <table class="table" *ngIf="!loading && tab === 'EQUIPO'">
-    <thead><tr><th>Equipo</th><th>Sede</th><th>Estado</th><th *ngIf="canEdit"></th></tr></thead>
+  <table class="table responsive-table" *ngIf="!loading && tab === 'EQUIPO'">
+    <thead><tr><th>Equipo</th><th>Sede</th><th>Unidades totales</th><th>Habilitado</th><th *ngIf="canEdit"></th></tr></thead>
     <tbody>
       <tr *ngFor="let r of filtered">
-        <td>{{ r.nombre }}</td><td>{{ r.sede }}</td>
-        <td><span class="badge">{{ r.estado }}</span></td>
-        <td *ngIf="canEdit"><button class="link-btn" (click)="openEdit(r)">Editar</button></td>
+        <td data-label="Nombre">{{ r.nombre }}</td><td data-label="Sede">{{ r.sede || "—" }}</td>
+        <td data-label="Unidades totales">{{ r.stock }}</td><td data-label="Habilitado"><span class="badge">{{ r.enabled === false ? "No" : "Sí" }}</span></td>
+        <td data-label="Acciones" *ngIf="canEdit"><button class="link-btn" (click)="openEdit(r)">Editar</button>
+          <button *ngIf="!r.archived" class="link-btn danger" [attr.aria-label]="'Eliminar ' + r.nombre" (click)="remove(r)">Eliminar</button>
+          <button *ngIf="r.archived" class="link-btn" [attr.aria-label]="'Restaurar ' + r.nombre" (click)="restore(r)">Restaurar</button></td>
       </tr>
     </tbody>
   </table>
 
-  <table class="table" *ngIf="!loading && tab === 'INSUMO'">
+  <table class="table responsive-table" *ngIf="!loading && tab === 'INSUMO'">
     <thead><tr><th>Insumo</th><th>Sede</th><th>Stock</th><th>Umbral</th><th *ngIf="canEdit"></th></tr></thead>
     <tbody>
       <tr *ngFor="let r of filtered">
-        <td>{{ r.nombre }}</td><td>{{ r.sede }}</td>
-        <td class="mono" [class.low]="bajoUmbral(r)">{{ r.stock }} {{ r.unidad }}</td>
-        <td class="mono">{{ r.umbral }} {{ r.unidad }}</td>
-        <td *ngIf="canEdit"><button class="link-btn" (click)="openEdit(r)">Editar</button></td>
+        <td data-label="Nombre">{{ r.nombre }}</td><td data-label="Sede">{{ r.sede || "—" }}</td>
+        <td data-label="Unidades totales" class="mono" [class.low]="bajoUmbral(r)">{{ r.stock }} {{ r.unidad }}</td>
+        <td data-label="Umbral" class="mono">{{ r.umbral }} {{ r.unidad }}</td>
+        <td data-label="Acciones" *ngIf="canEdit"><button class="link-btn" (click)="openEdit(r)">Editar</button>
+          <button *ngIf="!r.archived" class="link-btn danger" [attr.aria-label]="'Eliminar ' + r.nombre" (click)="remove(r)">Eliminar</button>
+          <button *ngIf="r.archived" class="link-btn" [attr.aria-label]="'Restaurar ' + r.nombre" (click)="restore(r)">Restaurar</button></td>
       </tr>
     </tbody>
   </table>
@@ -51,48 +60,46 @@
 <div class="panel-overlay" *ngIf="showForm">
   <div class="panel-modal panel">
     <h3>{{ editingId ? 'Editar' : 'Nuevo' }} recurso</h3>
+    <p *ngIf="errorMessage" class="form-error" role="alert">{{ errorMessage }}</p>
     <form [formGroup]="form" (ngSubmit)="save()">
-      <label class="field-label">Tipo</label>
-      <select class="field-input" formControlName="tipo">
+      <label class="field-label" for="catalog-tipo">Tipo</label>
+      <select class="field-input" id="catalog-tipo" formControlName="tipo">
         <option value="LABORATORIO">Laboratorio</option>
         <option value="EQUIPO">Equipo</option>
         <option value="INSUMO">Insumo</option>
       </select>
 
-      <label class="field-label">Nombre</label>
-      <input class="field-input" formControlName="nombre" />
+      <label class="field-label" for="catalog-nombre">Nombre</label>
+      <input class="field-input" id="catalog-nombre" formControlName="nombre" />
 
-      <label class="field-label">Sede</label>
-      <input class="field-input" formControlName="sede" placeholder="Instituto Central" />
+      <label class="field-label" for="catalog-sede">Sede</label>
+      <input class="field-input" id="catalog-sede" formControlName="sede" placeholder="Instituto Central" />
 
-      <ng-container *ngIf="form.value.tipo === 'LABORATORIO'">
-        <label class="field-label">Capacidad</label>
-        <input class="field-input" type="number" formControlName="capacidad" />
+      <ng-container *ngIf="form.getRawValue().tipo === 'LABORATORIO'">
+        <label class="field-label" for="catalog-capacidad">Capacidad de personas</label>
+        <input class="field-input" type="number" min="0" step="1" id="catalog-capacidad" formControlName="capacidad" />
       </ng-container>
 
-      <ng-container *ngIf="form.value.tipo === 'EQUIPO'">
-        <label class="field-label">Estado</label>
-        <select class="field-input" formControlName="estado">
-          <option value="DISPONIBLE">Disponible</option>
-          <option value="EN_USO">En uso</option>
-          <option value="MANTENIMIENTO">Mantenimiento</option>
-          <option value="NO_DEVUELTO">No devuelto</option>
-        </select>
+      <label class="field-label check-label"><input type="checkbox" formControlName="enabled" /> Habilitado para nuevas reservas</label>
+      <ng-container *ngIf="form.getRawValue().tipo === 'EQUIPO'">
+        <label class="field-label" for="catalog-stock">Unidades totales</label>
+        <input class="field-input" type="number" min="0" step="1" id="catalog-stock" formControlName="stock" />
+        <p class="text-muted">La disponibilidad por horario se calcula en Reservas.</p>
       </ng-container>
 
-      <ng-container *ngIf="form.value.tipo === 'INSUMO'">
+      <ng-container *ngIf="form.getRawValue().tipo === 'INSUMO'">
         <div class="field-row">
           <div>
-            <label class="field-label">Stock</label>
-            <input class="field-input" type="number" formControlName="stock" />
+            <label class="field-label" for="catalog-stock">Unidades totales</label>
+            <input class="field-input" type="number" min="0" step="1" id="catalog-stock" formControlName="stock" />
           </div>
           <div>
-            <label class="field-label">Umbral mínimo</label>
-            <input class="field-input" type="number" formControlName="umbral" />
+            <label class="field-label" for="catalog-umbral">Umbral mínimo</label>
+            <input class="field-input" type="number" id="catalog-umbral" formControlName="umbral" />
           </div>
         </div>
-        <label class="field-label">Unidad</label>
-        <input class="field-input" formControlName="unidad" placeholder="cajas, L, kg, u." />
+        <label class="field-label" for="catalog-unidad">Unidad</label>
+        <input class="field-input" id="catalog-unidad" formControlName="unidad" placeholder="cajas, L, kg, u." />
       </ng-container>
 
       <div class="modal-actions">
