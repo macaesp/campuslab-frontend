@@ -45,13 +45,8 @@
       </tr>
     </tbody>
   </table>
-<<<<<<< Updated upstream
-  <ng-template #loadingTpl><p class="text-muted">Cargando reservas (GET /api/bookings)…</p></ng-template>
-  <p *ngIf="!loading && bookings.length === 0" class="text-muted">No hay reservas con ese filtro.</p>
-=======
   <ng-template #loadingTpl><p class="text-muted">Cargando</p></ng-template>
   <p *ngIf="!loading && !errorMessage && bookings.length === 0" class="text-muted">No hay reservas con ese filtro.</p>
->>>>>>> Stashed changes
 </div>
 <cl-booking-detail-dialog #details />
 

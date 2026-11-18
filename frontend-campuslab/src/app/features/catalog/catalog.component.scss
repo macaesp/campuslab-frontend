@@ -11,3 +11,15 @@
 .field-input { width: 100%; border: 1px solid var(--border); border-radius: 7px; padding: 8px 10px; font-size: 13px; font-family: inherit; }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 14px; margin-top: 20px; }
+
+.panel-modal .field-label,
+.panel-modal .field-help {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #53627a;
+}
+.panel-modal .field-help {
+  margin: 7px 0 0;
+}

@@ -1,11 +1,7 @@
-<<<<<<< Updated upstream
-import { Component, OnInit, inject } from '@angular/core';
-=======
 import { ChangeDetectorRef, Component, DestroyRef, NgZone, OnInit, inject, viewChild } from '@angular/core';
 import { Subscription, debounceTime, distinctUntilChanged, map, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BookingDetailDialogComponent } from '../../shared/booking-detail/booking-detail-dialog.component';
->>>>>>> Stashed changes
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RoleService } from '../../core/auth/role.service';
@@ -32,8 +28,6 @@ export class BookingsComponent implements OnInit {
   private bookingsSvc = inject(BookingsService);
   private catalogSvc = inject(CatalogService);
   private fb = inject(FormBuilder);
-<<<<<<< Updated upstream
-=======
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
   private zone = inject(NgZone);
@@ -45,13 +39,13 @@ export class BookingsComponent implements OnInit {
   availabilityLoading = false;
   availabilityMessage = '';
   submitting = false;
->>>>>>> Stashed changes
   roleService = inject(RoleService);
 
   bookings: Booking[] = [];
   labs: CatalogResource[] = [];
   equipos: CatalogResource[] = [];
   loading = true;
+  errorMessage = '';
   showForm = false;
   statusFilter: BookingStatus | 'todas' = 'todas';
 
@@ -81,24 +75,12 @@ export class BookingsComponent implements OnInit {
     this.catalogSvc.list().subscribe({
       next: (r) => {
         this.labs = r.filter((x) => x.tipo === 'LABORATORIO');
-<<<<<<< Updated upstream
-        this.equipos = r.filter((x) => x.tipo === 'EQUIPO');
-=======
         this.equipos = r.filter((x) => x.tipo === 'EQUIPO' || x.tipo === 'INSUMO');
         this.cdr.markForCheck();
->>>>>>> Stashed changes
       },
     });
   }
 
-<<<<<<< Updated upstream
-  refresh(): void {
-    this.loading = true;
-    const status = this.statusFilter === 'todas' ? undefined : this.statusFilter;
-    this.bookingsSvc.list({ status }).subscribe({
-      next: (b) => { this.bookings = b; this.loading = false; },
-      error: () => { this.loading = false; },
-=======
   openForm(): void { this.showForm = true; this.refreshAvailability(); }
 
   private currentAvailabilityKey(): string {
@@ -176,7 +158,6 @@ export class BookingsComponent implements OnInit {
           : `No se pudieron cargar las reservas del servidor${error.status ? ' (' + error.status + ')' : ''}.`;
         this.cdr.markForCheck();
       },
->>>>>>> Stashed changes
     });
   }
 
@@ -192,10 +173,6 @@ export class BookingsComponent implements OnInit {
     // PUT /api/bookings/{id}/status
     this.bookingsSvc.updateStatus(booking.id, next).subscribe({
       next: (updated) => {
-<<<<<<< Updated upstream
-        this.bookings = this.bookings.map((b) => (b.id === updated.id ? updated : b));
-      },
-=======
         this.listRequest?.unsubscribe(); this.refreshing = false;
         this.bookings = sortBookings(this.bookings.map((b) => (b.id === updated.id ? updated : b))
           .filter((b) => this.statusFilter === 'todas' || b.status === this.statusFilter));
@@ -204,17 +181,12 @@ export class BookingsComponent implements OnInit {
         this.cdr.markForCheck();
       },
       error: error => { this.errorMessage = error.error?.message || 'No se pudo confirmar el cambio de estado. Recarga las reservas para comprobar su estado actual.'; this.cdr.markForCheck(); },
->>>>>>> Stashed changes
     });
   }
 
   submitBooking(): void {
-<<<<<<< Updated upstream
-    if (this.form.invalid) return;
-=======
     this.errorMessage = '';
     if (!this.canSubmit) return;
->>>>>>> Stashed changes
     const v = this.form.getRawValue();
     if (v.horaFin! <= v.horaInicio!) {
       this.errorMessage = 'La hora de fin debe ser posterior a la hora de inicio.';
@@ -240,9 +212,6 @@ export class BookingsComponent implements OnInit {
           this.refresh(true);
           this.form.reset({ quantity: 1 });
           this.showForm = false;
-<<<<<<< Updated upstream
-        },
-=======
           this.details()?.show(created);
           this.cdr.markForCheck();
         },
@@ -251,7 +220,6 @@ export class BookingsComponent implements OnInit {
           this.errorMessage = error.error?.message || 'No se pudo crear la reserva. Comprueba tu sesión y el recurso seleccionado.';
           this.refreshAvailability(); this.cdr.markForCheck();
         },
->>>>>>> Stashed changes
       });
   }
 }

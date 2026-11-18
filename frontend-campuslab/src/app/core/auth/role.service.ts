@@ -1,5 +1,8 @@
-import { Injectable, inject } from '@angular/core';
-import { MsalService } from '@azure/msal-angular';
+import { Injectable, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AccountInfo, InteractionStatus } from '@azure/msal-browser';
+import { filter } from 'rxjs';
+import { MsalService, MsalBroadcastService } from '@azure/msal-angular';
 import { environment } from '../../../environments/environment';
 
 export type AppRole = 'Admin' | 'OperadorDominio' | 'ClienteDominio' | 'Auditor';
@@ -12,6 +15,30 @@ const DEVELOPMENT_ROLE_KEY = 'campuslab-development-role';
 @Injectable({ providedIn: 'root' })
 export class RoleService {
   private msal = inject(MsalService);
+  private broadcast = inject(MsalBroadcastService);
+  private account = signal<AccountInfo | null>(null, {
+    equal: (previous, current) => JSON.stringify(previous) === JSON.stringify(current),
+  });
+  readonly sessionReady = signal(false);
+
+  constructor() {
+    this.broadcast.inProgress$
+      .pipe(filter(status => status === InteractionStatus.None), takeUntilDestroyed())
+      .subscribe(() => this.refreshAccount());
+  }
+
+  refreshAccount(preferred?: AccountInfo | null): void {
+    const accounts = this.msal.instance.getAllAccounts();
+    const account = preferred ?? this.msal.instance.getActiveAccount()
+      ?? (accounts.length === 1 ? accounts[0] : null);
+    if (account) this.msal.instance.setActiveAccount(account);
+    this.account.set(account);
+    this.sessionReady.set(true);
+  }
+
+  private currentAccount(): AccountInfo | null {
+    return this.account() ?? this.msal.instance.getActiveAccount();
+  }
 
   private get storage(): Storage | null {
     if (typeof window === 'undefined') return null;
@@ -23,7 +50,7 @@ export class RoleService {
   }
 
   getRoles(): AppRole[] {
-    const account = this.msal.instance.getActiveAccount();
+    const account = this.currentAccount();
     const claims = account?.idTokenClaims as { roles?: AppRole[] } | undefined;
     const roles = claims?.roles ?? [];
 
@@ -73,7 +100,7 @@ export class RoleService {
   isAuditor(): boolean { return this.hasAnyRole(['Auditor']); }
 
   displayName(): string {
-    const account = this.msal.instance.getActiveAccount();
+    const account = this.currentAccount();
     return account?.name ?? account?.username ?? 'Usuario';
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RoleService } from '../../core/auth/role.service';
@@ -14,6 +14,7 @@ import { CatalogResource, ResourceType } from '../../core/models/resource.model'
   styleUrl: './catalog.component.scss',
 })
 export class CatalogComponent implements OnInit {
+  private cdr = inject(ChangeDetectorRef);
   private catalogSvc = inject(CatalogService);
   private fb = inject(FormBuilder);
   roleService = inject(RoleService);
@@ -47,15 +48,9 @@ export class CatalogComponent implements OnInit {
   load(): void {
     this.loading = true;
     // GET /api/catalog/resources
-<<<<<<< Updated upstream
-    this.catalogSvc.list().subscribe({
-      next: (r) => { this.resources = r; this.loading = false; },
-      error: () => { this.loading = false; },
-=======
     this.catalogSvc.list(this.includeArchived).subscribe({
       next: (r) => { this.resources = r; this.loading = false; this.cdr.markForCheck(); },
       error: () => { this.loading = false; this.cdr.markForCheck(); },
->>>>>>> Stashed changes
     });
   }
 

@@ -1,5 +1,5 @@
 export type ResourceType = 'LABORATORIO' | 'EQUIPO' | 'INSUMO';
-export type EquipmentStatus = 'DISPONIBLE' | 'EN_USO' | 'MANTENIMIENTO' | 'NO_DEVUELTO';
+export type EquipmentStatus = 'DISPONIBLE' | 'SIN_STOCK' | 'EN_USO' | 'MANTENIMIENTO' | 'NO_DEVUELTO';
 
 export interface CatalogResource {
   enabled?: boolean;
