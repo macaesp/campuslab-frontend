@@ -26,18 +26,18 @@ import { BookingLookupDialogComponent } from '../../shared/booking-detail/bookin
     a:hover { text-decoration:underline; }
     .brand { font-weight:800; font-size:25px; }
     nav > a:last-child { font-size:15px; font-weight:600; padding:10px 0; }
-    .intro { max-width:720px; margin:0 auto; padding:64px 0 24px; text-align:center; }
+    .intro { max-width:720px; margin:0; padding:64px 0 24px; text-align:left; }
     .intro span { font-size:12px; letter-spacing:2px; color:#426c9f; font-weight:700; }
     h1 { font-size:clamp(32px,4vw,48px); line-height:1.15; margin:18px 0; text-wrap:balance; }
-    .intro p { max-width:600px; margin:0 auto; color:#576b83; font-size:17px; line-height:1.6; text-wrap:pretty; }
-    .search-card { box-sizing:border-box; max-width:600px; margin:0 auto; background:white; border:1px solid #e0e8f1; border-radius:16px; padding:28px; text-align:center; box-shadow:0 12px 32px #153d690a; }
-    button { display:block; width:100%; border:0; background:#245db0; color:white; padding:15px 20px; border-radius:8px; font:inherit; font-weight:600; line-height:1.4; cursor:pointer; transition:background .15s ease; }
+    .intro p { max-width:600px; margin:0; color:#576b83; font-size:17px; line-height:1.6; text-wrap:pretty; }
+    .search-card { box-sizing:border-box; max-width:600px; margin:0; background:white; border:1px solid #e0e8f1; border-radius:16px; padding:28px; text-align:left; box-shadow:0 12px 32px #153d690a; }
+    button { display:block; max-width:100%; border:0; background:#245db0; color:white; padding:15px 20px; border-radius:8px; font:inherit; font-weight:600; line-height:1.4; cursor:pointer; transition:background .15s ease; }
     button:hover { background:#1c4c92; }
     button:disabled { opacity:.6; cursor:not-allowed; }
     a:focus-visible,button:focus-visible { outline:3px solid #245db0; outline-offset:4px; }
     .hint,footer { color:#64748b; font-size:14px; line-height:1.6; }
-    .hint { margin:14px auto 0; max-width:420px; }
-    footer { margin:24px auto 0; text-align:center; }
+    .hint { margin:14px 0 0; max-width:420px; }
+    footer { margin:24px 0 0; text-align:left; }
     @media(max-width:560px) {
       main { padding:20px 18px 32px; }
       nav { gap:12px; }
