@@ -5,7 +5,7 @@
 </section>
 
 <p *ngIf="loading" class="text-muted">Cargando indicadores…</p>
-<div *ngIf="error" role="alert"><p>{{ error }}</p><button type="button" (click)="load()">Reintentar</button></div>
+<div *ngIf="error" role="alert"><p>{{ error }}</p><button type="button" class="btn-secondary" (click)="load()">Reintentar</button></div>
 
 <div class="stat-row" *ngIf="kpis as k">
   <article class="stat-card panel"><strong>{{ k.reservasHoy }}</strong><span>Solicitudes · últimas 24 h</span></article>

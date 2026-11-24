@@ -13,6 +13,37 @@
 body, button, input, select, textarea { font-family: 'DM Sans', Arial, sans-serif; }
 h1, h2, h3, .heading, .brand { font-family: 'Space Grotesk', 'DM Sans', Arial, sans-serif; }
 
+/* Shared actions use the same visual language across feature screens. */
+.btn-primary, .btn-secondary, .link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  min-height: 40px;
+  padding: 10px 15px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease;
+}
+.btn-primary { background: var(--accent); color: #fff; box-shadow: 0 3px 8px rgba(52,88,219,.2); }
+.btn-primary:hover:not(:disabled) { background: var(--accent-dark); }
+.btn-secondary, .link-btn { background: #edf0ff; border-color: #cfd8ff; color: var(--accent); }
+.btn-secondary:hover:not(:disabled), .link-btn:hover:not(:disabled) { background: #dfe5ff; }
+.link-btn { min-height: 34px; padding: 6px 10px; font-size: 12px; }
+.link-btn.danger { background: #fee5e3; border-color: #f4c4c0; color: #b9443c; }
+.link-btn.danger:hover:not(:disabled) { background: #fbd6d3; }
+.btn-primary:disabled { opacity: .55; cursor: not-allowed; box-shadow: none; }
+.btn-secondary:disabled, .link-btn:disabled { background: var(--surface-alt); border-color: var(--border); color: var(--text-muted); cursor: not-allowed; }
+.btn-primary:focus-visible, .btn-secondary:focus-visible, .link-btn:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
 /* Shared layout rules: keep overflow inside charts and adapt data tables to readable mobile cards. */
 body { min-width:320px; }
 body .panel, body .stat-card, body .two-col > * { min-width:0; }
